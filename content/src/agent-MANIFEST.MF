@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Premain-Class: com.gl.vn.me.ko.sample.instrumentation.example.agent.Agent
+Can-Redefine-Classes: true

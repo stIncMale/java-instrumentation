@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="java-instrumentation" default="clean" basedir=".">
+	<path id="src.path">
+		<pathelement path="src"/>
+	</path>	
+	<path id="lib.path">
+		<pathelement path="lib"/>
+	</path>
+	<path id="build.classes.path">
+		<pathelement path="build/classes"/>
+	</path>
+	<path id="build.path">
+		<pathelement path="build"/>
+	</path>
+	<path id="javac.classpath">
+		<fileset dir="${toString:lib.path}" includes="*.jar"/>
+	</path>
+	<property name="manifest.file.name" value="MANIFEST.MF"/>
+	<property name="main.manifest.template.name" value="main-MANIFEST.MF"/>
+	<property name="agent.manifest.template.name" value="agent-MANIFEST.MF"/>
+	<property name="example.manifest.template.name" value="example-MANIFEST.MF"/>
+	<target name="compile" description="compile the source">
+		<mkdir dir="${toString:build.classes.path}"/>
+		<javac srcdir="${toString:src.path}" destdir="${toString:build.classes.path}" debug="on" debuglevel="lines,source" encoding="UTF-8" includeantruntime="false">
+			<classpath refid="javac.classpath"/>
+		</javac>
+	</target>
+	<target name="build" depends="compile" description="pack compiled classes into JAR-files">
+		<mkdir dir="${toString:build.path}"/>
+		<!-- create main.jar #begin-->
+			<copy tofile="${toString:build.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${main.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/main.jar" manifest="${toString:build.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:build.classes.path}">
+					<include name="**/env/**/*.class"/>
+				</fileset>
+			</jar>
+		<!-- create main.jar #end-->
+		<!-- create agent.jar #begin-->
+			<copy tofile="${toString:build.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${agent.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/agent.jar" manifest="${toString:build.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:build.classes.path}">
+					<include name="**/example/agent/*.class"/>
+			  	</fileset>
+			</jar>
+		<!-- create agent.jar #end-->
+		<!-- create example.jar #begin-->
+			<copy tofile="${toString:build.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${example.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/example.jar">
+				<fileset dir="${toString:build.classes.path}">
+					<include name="**/example/**/*.class"/>
+				</fileset>
+			</jar>
+		<!-- create example.jar #end-->
+	</target>
+	<target name="clean" depends="build" description="clean up">
+		<delete dir="${toString:build.classes.path}"/>
+	</target>
+</project>

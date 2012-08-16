@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: com.gl.vn.me.ko.sample.instrumentation.env.Main
+Class-Path: example.jar ../lib/jcommander.jar ../lib/log4j.jar ../lib/asm.jar ../lib/cglib.jar ../lib/javassist.jar
