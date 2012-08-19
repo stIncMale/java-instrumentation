@@ -17,11 +17,24 @@ import com.gl.vn.me.ko.sample.instrumentation.example.util.InstrumentationEnviro
 import com.gl.vn.me.ko.sample.instrumentation.example.util.javassist.JavassistEnvironment;
 
 /**
+ * Java-agent class intended to access an instance of {@code java.lang.instrument.Instrumentation}.
+ * <p/>
+ * Instantiability and mutability: instances of the class are immutable.<br/>
+ * Thread safety: the class doesn't require thread synchronization because Java-agents can only run coherently one by one.
+ * 
  * @author Valentin Kovalenko
  */
 public final class Agent {
 	private final static Logger logger = Logger.getLogger(Agent.class);
 
+	/**
+	 * Java-agent entry point.
+	 * 
+	 * @param agentArgs
+	 *            Command-line arguments for the Java-agent
+	 * @param instrumentation
+	 *            Instance of {@code Instrumentation} passed by JVM
+	 */
 	public final static void premain(final String agentArgs, final Instrumentation instrumentation) {
 		processArgs(agentArgs);
 		logger.trace("Invocation");

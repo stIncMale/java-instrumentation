@@ -26,7 +26,7 @@ public final class JavassistEnvironment {
 	private final static String CLASS_EXTENSION_WITH_SEPARATOR = ".class";
 	private final static String URL_ENCODING = "UTF-8";
 	private final static Pattern URL_PROTOCOL_PATTERN = Pattern.compile(".*?:/+?");// .*? and /+? are reluctant quantifiers, the most appropriate in this particular use case
-	private final static Set<String> appendedClassPathElements = new LinkedHashSet<String>();// an order can be important
+	private final static Set<String> appendedClassPathElements = new LinkedHashSet<String>();// an order of elements can be important
 
 	private final static synchronized void appendClassPathToClassPool(final String classPath) {
 		if (!appendedClassPathElements.contains(classPath)) {

@@ -7,6 +7,11 @@ import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper.Command
 import com.gl.vn.me.ko.sample.instrumentation.env.misc.LogHelper;
 
 /**
+ * The main class of the application.
+ * <p/>
+ * Instantiability and mutability: instantiation is forbidden.<br/>
+ * Thread safety: the class doesn't require thread synchronization because its {@link Main#main(String[]) main(String[])} method invoked only once per running JVM.
+ * 
  * @author Valentin Kovalenko
  */
 public final class Main {
@@ -31,6 +36,12 @@ public final class Main {
 		example.run();
 	}
 
+	/**
+	 * Application entry point.
+	 * 
+	 * @param args
+	 *            Command-line arguments of the application
+	 */
 	public final static void main(final String[] args) {
 		processArgs(args);
 		logger.trace("Invocation");

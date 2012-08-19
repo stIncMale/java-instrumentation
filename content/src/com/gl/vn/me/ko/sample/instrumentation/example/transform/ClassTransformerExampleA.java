@@ -26,8 +26,7 @@ public final class ClassTransformerExampleA extends AbstractClassTransformer {
 	@Override
 	protected final byte[] doTransform(final CtClass ctClass) throws IllegalClassFormatException {
 		final String methodName = "incrementCounter";
-		final String jvmMethodDescriptor = "()V";// method descriptor as specified in
-													// "The Java Virtual Machine Specification"
+		final String jvmMethodDescriptor = "()V";// method descriptor as specified in "The Java Virtual Machine Specification"
 		if (logger.isDebugEnabled()) {
 			logger.debug("Transforming method '" + methodName + " " + jvmMethodDescriptor + "'");
 		}
@@ -37,9 +36,7 @@ public final class ClassTransformerExampleA extends AbstractClassTransformer {
 				@Override
 				public final void edit(final FieldAccess fieldAccess) throws CannotCompileException {
 					if (fieldAccess.isWriter()) {
-						fieldAccess.replace("{" + fieldAccess.getFieldName() + " += 2; }");// increment
-																							// field
-																							// by 2
+						fieldAccess.replace("{" + fieldAccess.getFieldName() + " += 2; }");// increment field by 2
 					}
 				}
 			});

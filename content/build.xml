@@ -60,6 +60,7 @@
 			<jar jarfile="${toString:build.path}/example.jar">
 				<fileset dir="${toString:build.classes.path}">
 					<include name="**/example/**/*.class"/>
+					<exclude name="**/example/agent/**/*.class"/>
 				</fileset>
 			</jar>
 		<!-- create example.jar #end-->

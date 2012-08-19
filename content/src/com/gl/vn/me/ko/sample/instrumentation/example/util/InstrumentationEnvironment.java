@@ -4,16 +4,14 @@ import java.lang.instrument.Instrumentation;
 import org.apache.log4j.Logger;
 
 /**
- * Intended to provide a static API that allows to obtain an instance of
- * {@code java.lang.instrument.Instrumentation} from the application {@code main(String[])} method
- * for example.
- * InstrumentationEnvironment should be initialized from Java-agent.
- * For example:
+ * Intended to provide a static API that allows to obtain an instance of {@code java.lang.instrument.Instrumentation} from the application {@code main(String[])} method
+ * for example. InstrumentationEnvironment should be initialized from Java-agent.
+ * Example:
  * <blockquote>
  * 
  * <pre>
- * public final class Agent {
- * 	public final static void premain(final String agentArgs, final Instrumentation instrumentation) {
+ * class Agent {
+ * 	public static void premain(String agentArgs, Instrumentation instrumentation) {
  * 		InstrumentationEnvironment.setInstrumentation(instrumentation);
  * 	}
  * }
@@ -21,8 +19,7 @@ import org.apache.log4j.Logger;
  * 
  * </blockquote>
  * <p/>
- * Because Java-agents can only run coherently one by one, the class doesn't require thread
- * synchronization.
+ * The class doesn't require thread synchronization because Java-agents can only run coherently one by one.
  * 
  * @author Valentin Kovalenko
  */
@@ -31,8 +28,7 @@ public final class InstrumentationEnvironment {
 	private static Instrumentation instrumentation = null;
 
 	/**
-	 * Allows to obtain an instance of Instrumentation interface from the application
-	 * {@code main(String[])} method for example.
+	 * Allows to obtain an instance of Instrumentation interface from the application {@code main(String[])} method for example.
 	 * Once initialized from an Java-agent, always return the same object.
 	 * 
 	 * @return
@@ -65,7 +61,7 @@ public final class InstrumentationEnvironment {
 		}
 		if (InstrumentationEnvironment.instrumentation == null) {
 			InstrumentationEnvironment.instrumentation = instrumentation;
-			logger.debug("Instrumentation environment was initialised");
+			logger.debug("Instrumentation environment was initialized");
 		}
 	}
 

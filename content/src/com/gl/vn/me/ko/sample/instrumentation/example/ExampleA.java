@@ -4,6 +4,9 @@ import org.apache.log4j.Logger;
 import com.gl.vn.me.ko.sample.instrumentation.env.IExample;
 
 /**
+ * Instantiability and mutability: instances of the class are mutable.<br/>
+ * Thread safety: the class is thread-safe.
+ * 
  * @author Valentin Kovalenko
  */
 public final class ExampleA implements IExample {

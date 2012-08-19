@@ -1,4 +1,4 @@
-The folder contains sources, build file for Apache Ant, license file and external libraries.
+The folder contains sources, build file, license file and external libraries.
 
 List of files and folders:
 >lib/ - contains external libraries needed for compilation and running the code

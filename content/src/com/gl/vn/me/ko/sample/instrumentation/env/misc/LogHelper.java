@@ -2,6 +2,8 @@ package com.gl.vn.me.ko.sample.instrumentation.env.misc;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
@@ -10,6 +12,11 @@ import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper.Command
 import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper.CommandLineParams.LogLevelConverter;
 
 /**
+ * Helper class that helps to configure and use Apache Log4j logging framework.
+ * <p/>
+ * Instantiability and mutability: the class can't be instantiated.<br/>
+ * Thread safety: the class is thread-safe.
+ * 
  * @author Valentin Kovalenko
  */
 public final class LogHelper {
@@ -30,6 +37,12 @@ public final class LogHelper {
 		final LogLevelConverter converter = new CommandLineParams.LogLevelConverter(calledFromAgent);
 		final Level lvl = converter.convert(stringLvl);
 		configure(lvl);
+	}
+
+	public final static NumberFormat getNumberFormat() {
+		final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+		numberFormat.setMaximumFractionDigits(2);
+		return numberFormat;
 	}
 
 	public final static String throwableToString(final Throwable e) {

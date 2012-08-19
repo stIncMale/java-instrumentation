@@ -7,7 +7,18 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 /**
+ * Helper class that helps to process command-line arguments.
+ * It uses JCommander library for processing of command-line arguments.
+ * <p/>
+ * Instantiability and mutability: the class can't be instantiated.<br/>
+ * Thread safety: the class is thread-safe.
+ * 
  * @author Valentin Kovalenko
+ */
+/*
+ * Some static nested classes and fields can't be declared non-public,
+ * because are designed to be used by JCommander library classes.
+ * See JCommander documentation for details.
  */
 public final class CommandLineHelper {
 	public final static class CommandLineParams {
@@ -38,8 +49,8 @@ public final class CommandLineHelper {
 				} else if ("trace".equalsIgnoreCase(paramValue)) {
 					value = Level.TRACE;
 				} else {
-					final String msg = calledFromAgent ? "The value '" + paramValue + "' is incorrect for level of logging of the agent"
-							: "The value '" + paramValue + "' is incorrect for the parameter -logLevel";
+					final String msg = calledFromAgent ? "The value '" + paramValue + "' is incorrect for level of logging of the agent" : "The value '" + paramValue
+							+ "' is incorrect for the parameter -logLevel";
 					throw new ParameterException(msg);
 				}
 				return value;
@@ -66,9 +77,8 @@ public final class CommandLineHelper {
 
 	public final static void printAgentUsageAndAbort(final Throwable cause) {
 		final String lineSeparator = System.getProperty("line.separator");
-		final String usage = "Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent"
-				+ lineSeparator + "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: "
-				+ CommandLineParams.agentDefaultLoggingLevel;
+		final String usage = "Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent" + lineSeparator
+				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + CommandLineParams.agentDefaultLoggingLevel;
 		printUsageAndAbort(usage, cause);
 	}
 
