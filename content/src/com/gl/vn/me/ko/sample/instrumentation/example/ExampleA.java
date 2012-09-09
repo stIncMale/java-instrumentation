@@ -1,29 +1,38 @@
 package com.gl.vn.me.ko.sample.instrumentation.example;
 
 import org.apache.log4j.Logger;
-import com.gl.vn.me.ko.sample.instrumentation.env.IExample;
+import com.gl.vn.me.ko.sample.instrumentation.env.Example;
 
 /**
- * Instantiability and mutability: instances of the class are mutable.<br/>
- * Thread safety: the class is thread-safe.
+ * Instantiability: allowed.<br/>
+ * Mutability: mutable.<br/>
+ * Thread safety: not thread-safe.
  * 
  * @author Valentin Kovalenko
  */
-public final class ExampleA implements IExample {
-	private final static Logger logger = Logger.getLogger(ExampleA.class);
+public final class ExampleA implements Example {
+	private final static Logger LOGGER;
 	private int counter;
+	static {
+		LOGGER = Logger.getLogger(ExampleA.class);
+	}
 
+	/**
+	 * Constructs an instance of {@link ExampleA}.
+	 */
 	public ExampleA() {
 		counter = 0;
 	}
 
-	private final synchronized void incrementCounter() {
+	private final void incrementCounter() {
 		counter++;
-		logger.info("The counter was incremented");
+		LOGGER.info("The counter was incremented");
 	}
 
-	private final synchronized void printCounter() {
-		logger.info("counter = " + counter);
+	private final void printCounter() {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("counter = " + counter);
+		}
 	}
 
 	public final void run() {

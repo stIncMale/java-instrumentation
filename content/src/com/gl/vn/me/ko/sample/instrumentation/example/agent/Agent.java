@@ -6,6 +6,7 @@ import java.lang.instrument.Instrumentation;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.NotFoundException;
 import org.apache.log4j.Logger;
 import com.beust.jcommander.ParameterException;
 import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper;
@@ -19,13 +20,16 @@ import com.gl.vn.me.ko.sample.instrumentation.example.util.javassist.JavassistEn
 /**
  * Java-agent class intended to access an instance of {@code java.lang.instrument.Instrumentation}.
  * <p/>
- * Instantiability and mutability: instances of the class are immutable.<br/>
- * Thread safety: the class doesn't require thread synchronization because Java-agents can only run coherently one by one.
+ * Instantiability: forbidden.<br/>
+ * Thread safety: thread-safe.
  * 
  * @author Valentin Kovalenko
  */
 public final class Agent {
-	private final static Logger logger = Logger.getLogger(Agent.class);
+	private final static Logger LOGGER;
+	static {
+		LOGGER = Logger.getLogger(Agent.class);
+	}
 
 	/**
 	 * Java-agent entry point.
@@ -37,12 +41,13 @@ public final class Agent {
 	 */
 	public final static void premain(final String agentArgs, final Instrumentation instrumentation) {
 		processArgs(agentArgs);
-		logger.trace("Invocation");
+		LOGGER.trace("Invocation");
 		InstrumentationEnvironment.setInstrumentation(instrumentation);
+		LOGGER.debug("Instrumentation environment was initialized");
 		registerClassTransformers(instrumentation);
-		redefineClass(instrumentation);
-		"a".concat("b");
-		logger.trace("Invocation finished");
+		// redefineClass(instrumentation);
+		// "a".concat("b");
+		LOGGER.trace("Invocation finished");
 	}
 
 	private final static void processArgs(final String args) {
@@ -60,38 +65,35 @@ public final class Agent {
 		} catch (final Throwable e) {
 			final String msg = "VAKO problems with redefine";
 			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
+			LOGGER.error(msg, e);
 			throw wrapperException;
 		}
 	}
 
 	private final static void registerClassTransformers(final Instrumentation instrumentation) {
-		final ClassFileTransformer[] transformers = {new ClassTransformerExampleA(), new ClassTransformerExampleB()};
+		final ClassFileTransformer[] transformers = {ClassTransformerExampleA.INSTANCE, ClassTransformerExampleB.INSTANCE};
 		for (final ClassFileTransformer transformer : transformers) {
 			instrumentation.addTransformer(transformer);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Class transformer '" + transformer.getClass().getSimpleName() + "' was successfully added to instrumentation");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Class transformer '" + transformer.getClass().getSimpleName() + "' was successfully added to instrumentation");
 			}
 		}
 	}
 
-	private final static void safeRedefineClass(final Instrumentation instrumentation) {
+	private final static void safeRedefineClass(final Instrumentation instrumentation) throws NotFoundException, CannotCompileException {
 		final CtClass ctClass = JavassistEnvironment.getCtClass("java.lang.String");
-		final CtMethod ctMethod = JavassistEnvironment.getCtMethod(ctClass, "concat", "(Ljava/lang/String;)Ljava/lang/String;");
+		final CtMethod ctMethod = ctClass.getMethod("concat", "(Ljava/lang/String;)Ljava/lang/String;");
 		try {
 			ctMethod.insertAfter("{/*System.exit(0)*/;}");
 		} catch (final CannotCompileException e) {
 			final String msg = "VAKO Can't transform class";
 			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
+			LOGGER.error(msg, e);
 			throw wrapperException;
 		} catch (final Throwable t) {
 			final String msg = "VAKO CRAP";
 			final RuntimeException wrapperException = new RuntimeException(msg, t);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
+			LOGGER.error(msg, wrapperException);
 			throw wrapperException;
 		}
 		final byte[] bytes = JavassistEnvironment.getCtBytes(ctClass);
@@ -101,8 +103,7 @@ public final class Agent {
 		} catch (final Exception e) {
 			final String msg = "VAKO Can't redefine class";
 			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
+			LOGGER.error(msg, e);
 			throw wrapperException;
 		}
 	}

@@ -6,9 +6,9 @@ package com.gl.vn.me.ko.sample.instrumentation.env;
  * 
  * @author Valentin Kovalenko
  */
-public interface IExample {
+public interface Example extends Runnable {
 	/**
-	 * This method will be invoked by {@link com.gl.vn.me.ko.sample.instrumentation.env.Main Main} class in order to run an example.
+	 * This method should be invoked in order to run the example.
 	 */
 	void run();
 }

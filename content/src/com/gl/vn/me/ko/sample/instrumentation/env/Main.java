@@ -9,23 +9,26 @@ import com.gl.vn.me.ko.sample.instrumentation.env.misc.LogHelper;
 /**
  * The main class of the application.
  * <p/>
- * Instantiability and mutability: instantiation is forbidden.<br/>
- * Thread safety: the class doesn't require thread synchronization because its {@link Main#main(String[]) main(String[])} method invoked only once per running JVM.
+ * Instantiability: forbidden.<br/>
+ * Thread safety: the class doesn't require thread synchronization because its {@link #main(String[])} method invoked only once per running JVM.
  * 
  * @author Valentin Kovalenko
  */
 public final class Main {
-	private final static Logger logger = Logger.getLogger(Main.class);
+	private final static Logger LOGGER;
 	private static String exampleName;
+	static {
+		LOGGER = Logger.getLogger(Main.class);
+	}
 
 	private final static void executeExample() {
-		final IExample example;
+		final Example example;
 		final String exampleClassNamePattern = "com.gl.vn.me.ko.sample.instrumentation.example.Example";
 		String exampleClassName = null;
 		try {
 			exampleClassName = exampleClassNamePattern + exampleName;
 			final Class<?> exampleClass = Class.forName(exampleClassName);
-			example = (IExample) exampleClass.newInstance();
+			example = (Example)exampleClass.newInstance();
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException("Can't load example class '" + exampleClassName + "' for example '" + exampleName + "'", e);
 		} catch (final InstantiationException e) {
@@ -40,13 +43,13 @@ public final class Main {
 	 * Application entry point.
 	 * 
 	 * @param args
-	 *            Command-line arguments of the application
+	 *            Command line arguments of the application.
 	 */
 	public final static void main(final String[] args) {
 		processArgs(args);
-		logger.trace("Invocation");
+		LOGGER.trace("Invocation");
 		executeExample();
-		logger.trace("Invocation finished");
+		LOGGER.trace("Invocation finished");
 	}
 
 	private final static void processArgs(final String[] args) {

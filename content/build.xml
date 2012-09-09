@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="java-instrumentation" default="clean" basedir=".">
+<project name="java-instrumentation" default="all" basedir=".">
 	<path id="src.path">
 		<pathelement path="src"/>
 	</path>	
@@ -67,5 +67,7 @@
 	</target>
 	<target name="clean" depends="build" description="clean up">
 		<delete dir="${toString:build.classes.path}"/>
+	</target>
+	<target name="all" depends="clean" description="build all sources">
 	</target>
 </project>

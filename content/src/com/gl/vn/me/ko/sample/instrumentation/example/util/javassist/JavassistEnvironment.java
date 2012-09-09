@@ -1,158 +1,124 @@
 package com.gl.vn.me.ko.sample.instrumentation.example.util.javassist;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
 import javassist.CannotCompileException;
+import javassist.ClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtMethod;
 import javassist.NotFoundException;
-import org.apache.log4j.Logger;
-import com.gl.vn.me.ko.sample.instrumentation.env.misc.LogHelper;
 
 /**
- * This class is not synchronized.
+ * Provides convenient API to work with Javassist framework.
+ * It also facilitates the creation/recreation of an underlying {@code javassist.ClassPool} object.
+ * <p/>
+ * Instantiability: forbidden.<br/>
+ * Thread safety: thread-safe.
+ */
+/*
+ * This class uses javassist.ClassPool. Although it's not specified in the API specification,
+ * according to javassist.ClassPool source code, it seems like the class is thread-safe.
+ * So JavassistEnvironment is written with the assumption that javassist.ClassPool is thread-safe.
  */
 public final class JavassistEnvironment {
-	private final static Logger logger = Logger.getLogger(JavassistEnvironment.class);
-	public final static String PACKAGE_SEPARATOR = ".";// example: java.lang.Class - binary name as specified in "The Java Language Specification"
-	public final static String INTERNAL_PACKAGE_SEPARATOR = "/";// example: java/lang/Class - binary name as specified in "The Java Virtual Machine Specification"
-	private final static String INTERNAL_ARCHIVE_PATH_SEPARATOR = "!";// example: rt.jar!/java/lang/Class.class
-	private final static String CLASS_EXTENSION_WITH_SEPARATOR = ".class";
-	private final static String URL_ENCODING = "UTF-8";
-	private final static Pattern URL_PROTOCOL_PATTERN = Pattern.compile(".*?:/+?");// .*? and /+? are reluctant quantifiers, the most appropriate in this particular use case
-	private final static Set<String> appendedClassPathElements = new LinkedHashSet<String>();// an order of elements can be important
-
-	private final static synchronized void appendClassPathToClassPool(final String classPath) {
-		if (!appendedClassPathElements.contains(classPath)) {
-			final ClassPool classPool = ClassPoolManager.getClassPool();
-			try {
-				classPool.appendClassPath(classPath);
-				appendedClassPathElements.add(classPath);
-			} catch (final NotFoundException e) {
-				final String msg = "Can't append classpath '" + classPath + "' to class pool '" + classPool + "'";
-				final RuntimeException wrapperException = new RuntimeException(msg, e);
-				final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-				logger.error(msgWithStackTrace);
-				throw wrapperException;
-			}
-		}
+	public final static char PACKAGE_SEPARATOR_CHAR;// example: java.lang.Class
+	public final static char INTERNAL_PACKAGE_SEPARATOR_CHAR;// example: java/lang/Class
+	static {
+		PACKAGE_SEPARATOR_CHAR = '.';
+		INTERNAL_PACKAGE_SEPARATOR_CHAR = '/';
 	}
 
-	public final static String getClassPath(final String className, final ClassLoader classLoader) {
-		final String classFileName = className + CLASS_EXTENSION_WITH_SEPARATOR;
-		final URL classResource = classLoader.getResource(classFileName);
-		if (classResource == null) {
-			final String msg = "Can't find resource with name '" + classFileName + "' via class loader '" + classLoader + "'";
-			final RuntimeException e = new RuntimeException(msg);
-			final String msgWithStackTrace = LogHelper.throwableToString(e);
-			logger.error(msgWithStackTrace);
-			throw e;
+	/**
+	 * Appends a {@code javassist.ClassPath} object to the end of the search path of the {@code javassist.ClassPool} object.
+	 * 
+	 * @param classPath
+	 *            The class path to append
+	 * @return
+	 *         <ul>
+	 *         <li>true if specified class path was appended</li>
+	 *         <li>false if specified class path wasn't appended because it was appended previously</li>
+	 *         </ul>
+	 */
+	public final static boolean appendClassPath(final ClassPath classPath) {
+		if (classPath == null) {
+			throw new NullPointerException("The argument 'classPath' is null");
 		}
-		final String encodedClassLocation = classResource.getPath();
-		final String classLocation;
-		try {
-			classLocation = URLDecoder.decode(encodedClassLocation, URL_ENCODING);
-		} catch (final UnsupportedEncodingException e) {
-			final String msg = "Can't decode string '" + encodedClassLocation + "' with the '" + URL_ENCODING + "' encoding";
-			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
-			throw wrapperException;
-		}
-		final String[] classLocationParts = URL_PROTOCOL_PATTERN.split(classLocation, 2);
-		final String classPathWithPossibleArchivePath = classLocationParts.length > 1 ? classLocationParts[1] : classLocation;
-		final String classPath = classPathWithPossibleArchivePath.substring(0, classPathWithPossibleArchivePath.indexOf(INTERNAL_ARCHIVE_PATH_SEPARATOR));
-		return classPath;
+		final boolean result = ClassPoolManager.appendClassPath(classPath);
+		return result;
 	}
 
-	public final static byte[] getCtBytes(final CtClass ctClass) {
+	/**
+	 * Converts provided class object to a class file.
+	 * Once this method is called, the class object becomes frozen
+	 * and further modifications are not possible till the defrost procedure.
+	 * 
+	 * @param ctClass
+	 *            Class object to convert
+	 * @return
+	 *         The contents of the class file
+	 * @throws CannotCompileException
+	 * @see {@code javassist.CtClass.isFrozen()}
+	 * @see {@code javassist.CtClass.defrost()}
+	 */
+	public final static byte[] getCtBytes(final CtClass ctClass) throws CannotCompileException {
+		if (ctClass == null) {
+			throw new NullPointerException("The argument 'ctClass' is null");
+		}
 		final byte[] bytes;
 		ctClass.rebuildClassFile();
 		try {
 			bytes = ctClass.toBytecode();
-		} catch (final CannotCompileException e) {
-			final String msg = "Can't compile class '" + ctClass.getName() + "'";
-			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
-			throw wrapperException;
-		} catch (final IOException e) {
-			final String msg = "Exception occured while trying to get bytecode from class '" + ctClass.getName() + "'";
-			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
-			throw wrapperException;
+		} catch (final CannotCompileException cce) {
+			throw new CannotCompileException("Can't compile class '" + ctClass.getName() + "'", cce);
+		} catch (final IOException ioe) {
+			throw new RuntimeException("Exception occured while trying to get bytecode from class '" + ctClass.getName() + "'", ioe);
 		}
 		return bytes;
 	}
 
-	public final static CtClass getCtClass(final String className) {
+	/**
+	 * Reads a class file from the source and returns a reference to the {@code javassist.CtClass} object representing that class file.
+	 * If that class file has been already read from the same {@code javassist.ClassPool},
+	 * this method returns a reference to the {@code javassist.CtClass} created when that class file was read at the first time.
+	 * <p/>
+	 * If class name ends with "[]", then this method returns a {@code javassist.CtClass} object for that array type. To obtain an nested class, use "$" instead of "." for separating the enclosing
+	 * class name and the inner class name.
+	 * 
+	 * @param className
+	 *            A fully-qualified class name
+	 * @return
+	 *         A {@code javassist.CtClass} object representing specified class
+	 * @throws NotFoundException
+	 */
+	public final static CtClass getCtClass(final String className) throws NotFoundException {
 		if (className == null) {
-			final String msg = "The argument 'className' is null";
-			final RuntimeException e = new NullPointerException(msg);
-			final String msgWithStackTrace = LogHelper.throwableToString(e);
-			logger.error(msgWithStackTrace);
-			throw e;
+			throw new NullPointerException("The argument 'className' is null");
 		}
-		final CtClass result = getCtClassFromClassPool(className, null);
-		return result;
-	}
-
-	public final static CtClass getCtClass(final String className, final String classPath) {
-		if (className == null) {
-			final String msg = "The first argument 'className' is null";
-			final RuntimeException e = new NullPointerException(msg);
-			final String msgWithStackTrace = LogHelper.throwableToString(e);
-			logger.error(msgWithStackTrace);
-			throw e;
-		}
-		if (classPath == null) {
-			final String msg = "The second argument 'classPath' is null";
-			final RuntimeException e = new NullPointerException(msg);
-			final String msgWithStackTrace = LogHelper.throwableToString(e);
-			logger.error(msgWithStackTrace);
-			throw e;
-		}
-		final CtClass result = getCtClassFromClassPool(className, classPath);
-		return result;
-	}
-
-	private final static CtClass getCtClassFromClassPool(final String className, final String classPath) {
 		final ClassPool classPool = ClassPoolManager.getClassPool();
-		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR, PACKAGE_SEPARATOR);
-		if (classPath != null) {
-			appendClassPathToClassPool(classPath);
-		}
+		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final CtClass result;
 		try {
 			result = classPool.get(classNameToSearchInClassPool);
 		} catch (final NotFoundException e) {
-			final String msg = "Can't get class '" + className + "' with specified class path '" + classPath + "' from class pool";
-			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
-			throw wrapperException;
+			throw new NotFoundException("Can't find class '" + className + "' in the class pool '" + classPool + "'", e);
 		}
-		result.stopPruning(true);
 		return result;
 	}
 
+	/**
+	 * Reads a class file from the source and returns a reference to the CtClass object representing that class file.
+	 * This method is equivalent to {@link JavassistEnvironment#getCtClass(String) getCtClass(String)} except that it returns null when a class file is not found and it never throws an exception.
+	 * 
+	 * @param className
+	 *            A fully-qualified class name
+	 * @return
+	 *         A {@code javassist.CtClass} object representing specified class or null
+	 */
 	public final static CtClass getCtClassOrNull(final String className) {
 		if (className == null) {
-			final String msg = "The first argument 'className' is null";
-			final RuntimeException e = new NullPointerException(msg);
-			final String msgWithStackTrace = LogHelper.throwableToString(e);
-			logger.error(msgWithStackTrace);
-			throw e;
+			throw new NullPointerException("The argument 'className' is null");
 		}
 		final ClassPool classPool = ClassPoolManager.getClassPool();
-		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR, PACKAGE_SEPARATOR);
+		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final CtClass result = classPool.getOrNull(classNameToSearchInClassPool);
 		if (result != null) {
 			result.stopPruning(true);
@@ -160,31 +126,34 @@ public final class JavassistEnvironment {
 		return result;
 	}
 
-	public final static CtMethod getCtMethod(final CtClass ctClass, final String methodName, final String methodDescriptor) {
-		final CtMethod ctMethod;
-		try {
-			ctMethod = ctClass.getMethod(methodName, methodDescriptor);
-		} catch (final NotFoundException e) {
-			final String msg = "Can't find method with name '" + methodName + "' and descriptor '" + methodDescriptor + "' in the class '" + ctClass.getName() + "'";
-			final RuntimeException wrapperException = new RuntimeException(msg, e);
-			final String msgWithStackTrace = LogHelper.throwableToString(wrapperException);
-			logger.error(msgWithStackTrace);
-			throw wrapperException;
+	/**
+	 * Prepends a {@code javassist.ClassPath} object to the head of the search path of the {@code javassist.ClassPool} object.
+	 * 
+	 * @param classPath
+	 *            The class path to append
+	 * @return
+	 *         <ul>
+	 *         <li>true if specified class path was prepended</li>
+	 *         <li>false if specified class path wasn't prepended because it was prepended previously</li>
+	 *         </ul>
+	 */
+	public final static boolean prependClassPath(final ClassPath classPath) {
+		if (classPath == null) {
+			throw new NullPointerException("The argument 'classPath' is null");
 		}
-		return ctMethod;
+		final boolean result = ClassPoolManager.prependClassPath(classPath);
+		return result;
 	}
 
-	public final static synchronized void renew(final boolean preserveClassPath) {
-		ClassPoolManager.recreateClassPool();
-		if (preserveClassPath) {
-			final Set<String> classPathElements = new LinkedHashSet<String>(appendedClassPathElements);
-			appendedClassPathElements.clear();
-			for (final String classPathElement : classPathElements) {
-				appendClassPathToClassPool(classPathElement);
-			}
-		} else {
-			appendedClassPathElements.clear();
-		}
+	/**
+	 * Recreates an instance of {@code javassist.ClassPool} used by {@code JavassistEnvironment}.
+	 * 
+	 * @param preserveClassPath
+	 *            Specifies if class path elements prepended/appended via methods {@link JavassistEnvironment#prependClassPath(ClassPath) prependClassPath(ClassPath)},
+	 *            {@link JavassistEnvironment#appendClassPath(ClassPath) appendClassPath(ClassPath)} must be presented in a new instance of {@code javassist.ClassPool}
+	 */
+	public final static void renew(final boolean preserveClassPath) {
+		ClassPoolManager.recreateClassPool(preserveClassPath);
 	}
 
 	private JavassistEnvironment() {

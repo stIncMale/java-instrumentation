@@ -1,4 +1,4 @@
-The folder contains external libraries needed for compilation and running the code
+The folder contains external libraries needed to compile and run the code, 
 as well as licenses for the external libraries.
 
 List of files and folders:
