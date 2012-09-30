@@ -1,5 +1,5 @@
 /**
- * Contains miscellaneous utility classes that are not directly related to the examples.
+ * Contains miscellaneous utility classes that are not directly related to examples.
  * 
  * @author Valentin Kovalenko
  */

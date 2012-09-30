@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Premain-Class: com.gl.vn.me.ko.sample.instrumentation.example.agent.AgentExampleD
+Class-Path: instrumentation-util.jar
+Boot-Class-Path: ../lib/log4j.jar
+Can-Redefine-Classes: true

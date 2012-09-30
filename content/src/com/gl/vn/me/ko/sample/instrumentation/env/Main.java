@@ -43,7 +43,7 @@ public final class Main {
 	 * Application entry point.
 	 * 
 	 * @param args
-	 *            Command line arguments of the application.
+	 *            Command-line arguments of the application.
 	 */
 	public final static void main(final String[] args) {
 		processArgs(args);
@@ -58,7 +58,7 @@ public final class Main {
 			LogHelper.configure(clParams.logLevel);
 			exampleName = clParams.exampleName;
 		} catch (final ParameterException e) {
-			CommandLineHelper.printAppUsageAndAbort(e);
+			CommandLineHelper.printAppUsageAndExit(e);
 		}
 	}
 

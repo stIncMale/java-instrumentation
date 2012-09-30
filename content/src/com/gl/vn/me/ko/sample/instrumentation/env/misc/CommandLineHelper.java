@@ -22,18 +22,18 @@ import com.beust.jcommander.ParameterException;
  */
 public final class CommandLineHelper {
 	/**
-	 * This class defines possible command line arguments as described in JCommander documentation.
+	 * This class defines possible application command-line arguments as described in JCommander documentation.
 	 * It also contains classes for converting string representation of command line arguments to appropriate Java-objects.
 	 * <p/>
 	 * Instantiability: allowed only from inside {@link CommandLineHelper} class.<br/>
-	 * Mutability: immutable.<br/>
-	 * Thread safety: thread-safe.
+	 * Mutability: mutable.<br/>
+	 * Thread safety: not thread-safe.
 	 * 
 	 * @author Valentin Kovalenko
 	 */
 	public final static class CommandLineParams {
 		/**
-		 * This class provides a method to convert command line argument into Java-object with the same type as {@link CommandLineParams#exampleName} field.
+		 * This class provides a method to convert a value of command-line argument into Java-object with the same type as {@link CommandLineParams#exampleName} field.
 		 * <p/>
 		 * Instantiability: allowed.<br/>
 		 * Mutability: immutable.<br/>
@@ -49,21 +49,21 @@ public final class CommandLineHelper {
 			}
 
 			/**
-			 * Converts {@code java.lang.String} into another {@code java.lang.String} that can be used as value of {@link CommandLineParams#exampleName} field.
+			 * Converts {@link java.lang.String} object into another {@link java.lang.String} object that can be used as value of {@link CommandLineParams#exampleName} field.
 			 * 
 			 * @param paramValue
-			 *            {@code java.lang.String} to convert.
+			 *            {@link java.lang.String} object to convert.
 			 * @return
-			 *         {@code java.lang.String} in correct format.
+			 *         Converted {@link java.lang.String} object.
 			 */
 			public final String convert(final String paramValue) {
-				final String value = paramValue.toUpperCase(Internationalization.LOCALE);
+				final String value = (paramValue == null ? "" : paramValue.toUpperCase(Internationalization.LOCALE));
 				return value;
 			}
 		}
 
 		/**
-		 * This class provides a method to convert command line argument into Java-object with the same type as {@link CommandLineParams#logLevel} field.
+		 * This class provides a method to convert a value command line-argument into Java-object with the same type as {@link CommandLineParams#logLevel} field.
 		 * <p/>
 		 * Instantiability: allowed.<br/>
 		 * Mutability: immutable.<br/>
@@ -76,6 +76,7 @@ public final class CommandLineHelper {
 
 			/**
 			 * Constructs an instance of {@link LogLevelConverter}.
+			 * Is equivalent to {@code LogLevelConverter(false)}.
 			 */
 			public LogLevelConverter() {
 				calledFromAgent = false;
@@ -85,7 +86,7 @@ public final class CommandLineHelper {
 			 * Constructs an instance of {@link LogLevelConverter}.
 			 * 
 			 * @param calledFromAgent
-			 *            Specifies if the constructor was called from Java-agent or from main class of the application.
+			 *            Specifies if the constructor was called from Java-agent class or from main class of the application.
 			 *            The argument only affects an exception message in case fail of convertation.
 			 */
 			public LogLevelConverter(final boolean calledFromAgent) {
@@ -93,14 +94,14 @@ public final class CommandLineHelper {
 			}
 
 			/**
-			 * Converts {@code java.lang.String} into {@code org.apache.log4j.Level} that can be used as value of {@link CommandLineParams#logLevel} field.
+			 * Converts {@link java.lang.String} object into {@link org.apache.log4j.Level} object that can be used as value of {@link CommandLineParams#logLevel} field.
 			 * 
 			 * @param paramValue
-			 *            {@code java.lang.String} to convert
+			 *            {@link java.lang.String} object to convert.
 			 * @return
-			 *         Corresponding {@code org.apache.log4j.Level}
-			 * @throws ParameterException
-			 *             If the specified {@code java.lang.String} can't be converted into {@code org.apache.log4j.Level}
+			 *         Converted {@link org.apache.log4j.Level} object.
+			 * @throws com.beust.jcommander.ParameterException
+			 *             If the specified {@link java.lang.String} can't be converted into {@link org.apache.log4j.Level}.
 			 */
 			public final Level convert(final String paramValue) throws ParameterException {
 				final Level value;
@@ -120,83 +121,87 @@ public final class CommandLineHelper {
 		}
 
 		/**
-		 * Default logging level for Java-agents.
-		 */
-		public final static String agentDefaultLoggingLevel;
-		/**
-		 * Definition of command line argument that specify level of logging.
+		 * Definition of command-line argument that specifies level of logging.
 		 */
 		@Parameter(names = {"-logLevel", "-logLvl"}, description = "Level of logging (possible values: INFO, DEBUG, TRACE)", converter = LogLevelConverter.class)
 		public Level logLevel;
 		/**
-		 * Definition of command line argument that specify name of the example to launch.
+		 * Definition of command-line argument that specifies name of the example to launch.
 		 */
-		@Parameter(names = {"-example", "-ex"}, description = "Name of the example to launch (possible values: A, B, C, ...)", required = true, converter = ExampleNameConverter.class)
+		@Parameter(names = {"-example", "-ex"}, description = "Name of the example to launch (possible values: A, B, C, D)", required = true, converter = ExampleNameConverter.class)
 		public String exampleName;
-		static {
-			agentDefaultLoggingLevel = "INFO";
-		}
 
 		private CommandLineParams() {
-			logLevel = Level.INFO;
+			logLevel = (new LogLevelConverter()).convert(LogHelper.APPLICATION_DEFAULT_LOGGING_LEVEL);
 			exampleName = null;
 		}
 	}
 
-	private final static void abort() {
+	private final static void errorExit() {
 		final int errorExitCode = 1;
 		System.exit(errorExitCode);
 	}
 
 	/**
-	 * Processes command line arguments.
+	 * Processes command-line arguments and returns an object that contains processed values of arguments.
 	 * 
 	 * @param args
-	 *            Command line arguments of the application.
+	 *            Command-line arguments of the application. Must be not {@code null}.
 	 * @return
-	 *         Object that contains values of processed command line arguments.
+	 *         Object that contains values of processed command-line arguments.
 	 */
 	public final static CommandLineParams getCommandLineParams(final String[] args) {
+		if (args == null) {
+			throw new NullPointerException("The argument 'args' is null");
+		}
 		final CommandLineParams clParams = new CommandLineParams();
 		new JCommander(clParams, args);
 		return clParams;
 	}
 
 	/**
-	 * This method should be called if {@code com.beust.jcommander.ParameterException} occurred during processing of Java-agent command line arguments.
 	 * Prints usage and terminates application.
+	 * This method should be called if {@link com.beust.jcommander.ParameterException} occurred during processing of Java-agent command-line arguments.
 	 * 
 	 * @param cause
-	 *            Exception that caused invocation of the method.
+	 *            Exception that caused invocation of the method. Must be not {@code null}.
 	 */
-	public final static void printAgentUsageAndAbort(final ParameterException cause) {
+	public final static void printAgentUsageAndExit(final ParameterException cause) {
+		if (cause == null) {
+			throw new NullPointerException("The argument 'cause' is null");
+		}
 		final String lineSeparator = System.getProperty("line.separator");
 		final String usage = "Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent" + lineSeparator
-				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + CommandLineParams.agentDefaultLoggingLevel;
-		printUsageAndAbort(usage, cause);
+				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + LogHelper.AGENT_DEFAULT_LOGGING_LEVEL;
+		printUsageAndExit(usage, cause);
 	}
 
 	/**
-	 * This method should be called if {@code com.beust.jcommander.ParameterException} occurred during processing of application command line arguments.
 	 * Prints usage and terminates application.
+	 * This method should be called if {@link com.beust.jcommander.ParameterException} occurred during processing of application command-line arguments.
 	 * 
 	 * @param cause
-	 *            Exception that caused invocation of the method.
+	 *            Exception that caused invocation of the method. Must be not {@code null}.
 	 */
-	public final static void printAppUsageAndAbort(final ParameterException cause) {
+	public final static void printAppUsageAndExit(final ParameterException cause) {
+		if (cause == null) {
+			throw new NullPointerException("The argument 'cause' is null");
+		}
 		final CommandLineParams clParams = new CommandLineParams();
 		final JCommander jCommander = new JCommander(clParams);
 		jCommander.setProgramName("-jar app.jar");
-		final StringBuilder sb = new StringBuilder();
-		jCommander.usage(sb);
-		final String usage = sb.toString();
-		printUsageAndAbort(usage, cause);
+		final StringBuilder usage = new StringBuilder();
+		jCommander.usage(usage);
+		printUsageAndExit(usage.toString(), cause);
 	}
 
-	private final static void printUsageAndAbort(final String usage, final ParameterException cause) {
-		System.out.println(cause.getMessage());
-		System.out.print(usage);
-		abort();
+	/*
+	 * This method can't rely on Log4j framework because loggers can be not configured, therefore the "standard" error output stream is used.
+	 */
+	private final static void printUsageAndExit(final String usage, final ParameterException cause) {
+		System.err.println(cause.getMessage());
+		System.err.print(usage);
+		errorExit();
 	}
 
 	private CommandLineHelper() {

@@ -1,8 +1,8 @@
 The folder contains sources, build file, license file and external libraries.
 
 List of files and folders:
->lib/ - contains external libraries needed compile and run the code
+>lib/ - contains external libraries needed to compile and run the code
 >src/ - contains source files
 >build.xml - build file for Apache Ant, tested with ant-1.8.4
->license.txt - license file. All content is licensed under WTFPL version 2,
+>license.txt - WTFPL version 2 license file. All content is licensed under WTFPL version 2
 except files or text for which other license is explicitly specified (external libraries for example)

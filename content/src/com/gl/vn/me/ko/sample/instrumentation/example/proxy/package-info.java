@@ -1,5 +1,5 @@
 /**
- * Contains CGLib-interceptors.
+ * Contains sample classes for proxies.
  * 
  * @author Valentin Kovalenko
  */

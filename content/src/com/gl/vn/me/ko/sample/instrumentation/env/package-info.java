@@ -1,5 +1,5 @@
 /**
- * Contains classes that make up environment necessary to execute the examples.
+ * Contains classes that make up an environment necessary to execute examples.
  * 
  * @author Valentin Kovalenko
  */

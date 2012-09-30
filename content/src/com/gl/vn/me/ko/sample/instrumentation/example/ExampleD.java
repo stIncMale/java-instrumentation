@@ -23,5 +23,7 @@ public final class ExampleD implements Example {
 	}
 
 	public final void run() {
+		final boolean comparisonResult = ("test" == "test".toString());
+		LOGGER.info("(\"test\" == \"test\".toString()) is " + comparisonResult);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Locale;
 /**
  * Provides methods and constants that must be used in order the application to demonstrate the same behavior
  * regardless of the system locale.
+ * <p/>
  * Instantiability: forbidden.<br/>
  * Thread safety: thread-safe.
  * 
@@ -12,7 +13,7 @@ import java.util.Locale;
  */
 public final class Internationalization {
 	/**
-	 * Instance of {@code java.util.Locale} that should be used throughout the application code
+	 * Instance of {@link java.util.Locale} that should be used throughout the application code.
 	 */
 	public final static Locale LOCALE;
 	static {

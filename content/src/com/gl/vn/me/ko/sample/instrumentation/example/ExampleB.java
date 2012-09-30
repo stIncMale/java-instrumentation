@@ -28,7 +28,7 @@ public final class ExampleB implements Example {
 	public final void run() {
 		final NumberFormat numberFormat = LogHelper.getNumberFormat();
 		final double doublePi = Math.PI;
-		final BigDecimal piFromDouble = new BigDecimal(doublePi);
+		final BigDecimal piFromDouble = new BigDecimal(doublePi);// prefer constructor BigDecimal(String) or method valueOf(double) in the production code; see Java SE API Specification for details
 		final BigDecimal squarePi = piFromDouble.pow(2);
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("pi.pow(2) = " + numberFormat.format(squarePi));

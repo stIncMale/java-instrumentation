@@ -24,20 +24,17 @@ public final class ExampleA implements Example {
 		counter = 0;
 	}
 
-	private final void incrementCounter() {
-		counter++;
-		LOGGER.info("The counter was incremented");
-	}
-
-	private final void printCounter() {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("counter = " + counter);
-		}
+	private final void increment(final int incrementValue) {
+		counter += incrementValue;
 	}
 
 	public final void run() {
-		printCounter();
-		incrementCounter();
-		printCounter();
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("counter = " + counter + " before incrementation");
+		}
+		increment(1);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("counter = " + counter + " after incrementation");
+		}
 	}
 }
