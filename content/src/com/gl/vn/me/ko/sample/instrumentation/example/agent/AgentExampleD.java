@@ -3,7 +3,6 @@ package com.gl.vn.me.ko.sample.instrumentation.example.agent;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import com.gl.vn.me.ko.sample.instrumentation.env.Agent;
 import com.gl.vn.me.ko.sample.instrumentation.example.transform.ClassFileTransformerExampleD;
 import com.gl.vn.me.ko.sample.instrumentation.util.InstrumentationEnvironment;
 
@@ -27,10 +26,13 @@ public final class AgentExampleD extends Agent {
 	public final static void premain(final String agentArgs, final Instrumentation inst) {
 		processArgs(agentArgs);
 		LOGGER.trace("Invocation");
-		initInstrumentationEnvironment(inst);
-		registerClassFileTransformers(new ClassFileTransformer[] {ClassFileTransformerExampleD.INSTANCE});
-		retransformClass(inst, String.class);
-		LOGGER.trace("Invocation finished");
+		try {
+			initInstrumentationEnvironment(inst);
+			registerClassFileTransformers(new ClassFileTransformer[] {ClassFileTransformerExampleD.INSTANCE});
+			retransformClass(inst, String.class);
+		} finally {
+			LOGGER.trace("Invocation finished");
+		}
 	}
 
 	private final static void retransformClass(final Instrumentation inst, final Class<?> classToRetransform) {

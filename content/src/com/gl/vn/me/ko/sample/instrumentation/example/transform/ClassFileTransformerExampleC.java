@@ -3,14 +3,14 @@ package com.gl.vn.me.ko.sample.instrumentation.example.transform;
 import javassist.CtClass;
 import javassist.CtMethod;
 import org.apache.log4j.Logger;
-import com.gl.vn.me.ko.sample.instrumentation.example.ExampleC;
-import com.gl.vn.me.ko.sample.instrumentation.example.proxy.MapProxyFactoryExampleC;
 import com.gl.vn.me.ko.sample.instrumentation.util.AbstractClassFileTransformer;
 import com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment;
 
 /**
- * Transforms {@link ExampleC} class by modifying the return value of its {@code private} method {@code createFaucetColorCodeMap()}. The method returns instance of {@link java.util.HashMap},
- * transformation substitutes the return object with Java-proxy created by using {@link MapProxyFactoryExampleC#create(java.util.Map)} method, so the original method body<br/>
+ * Transforms {@link com.gl.vn.me.ko.sample.instrumentation.example.ExampleC} class by modifying the return value of its {@code private} method {@code createFaucetColorCodeMap()}. The method returns
+ * instance of {@link java.util.HashMap},
+ * transformation substitutes the return object with Java-proxy created by using {@link com.gl.vn.me.ko.sample.instrumentation.example.proxy.MapProxyFactoryExampleC#create(java.util.Map)} method, so
+ * the original method body<br/>
  * <blockquote>
  * 
  * <pre>

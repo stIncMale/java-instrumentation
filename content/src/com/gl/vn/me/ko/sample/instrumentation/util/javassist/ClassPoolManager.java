@@ -17,14 +17,20 @@ import javassist.ClassPool;
  */
 final class ClassPoolManager {
 	private final static Object LOCK;// modifications of 'classPool', 'preserveClassPath', 'prependedClassPathElements', 'appendedClassPathElements' must be synchronized via this object
+	/**
+	 * The order of elements is important.
+	 */
 	private final static Set<ClassPath> PREPENDED_CLASSPATH_ELEMENTS;
+	/**
+	 * The order of elements is important.
+	 */
 	private final static Set<ClassPath> APPENDED_CLASSPATH_ELEMENTS;
 	private static boolean preserveClassPath;// all reads and writes are inside synchronized blocks, so volatile modifier isn't required
 	private static volatile ClassPool classPool;// must be volatile because there are reads of the field outside synchronized blocks (see getClassPool() method)
 	static {
 		LOCK = new Object();
-		PREPENDED_CLASSPATH_ELEMENTS = new LinkedHashSet<ClassPath>();// an order of elements is important
-		APPENDED_CLASSPATH_ELEMENTS = new LinkedHashSet<ClassPath>();// an order of elements is important
+		PREPENDED_CLASSPATH_ELEMENTS = new LinkedHashSet<ClassPath>();
+		APPENDED_CLASSPATH_ELEMENTS = new LinkedHashSet<ClassPath>();
 		preserveClassPath = false;
 		classPool = null;
 		ClassPool.doPruning = false;

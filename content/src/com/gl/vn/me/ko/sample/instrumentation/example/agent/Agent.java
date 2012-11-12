@@ -1,4 +1,4 @@
-package com.gl.vn.me.ko.sample.instrumentation.env;
+package com.gl.vn.me.ko.sample.instrumentation.example.agent;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
@@ -9,7 +9,7 @@ import com.gl.vn.me.ko.sample.instrumentation.env.misc.LogHelper;
 import com.gl.vn.me.ko.sample.instrumentation.util.InstrumentationEnvironment;
 
 /**
- * Provides methods that can be used by Java-agent classes in order to fit an existing execution environment ({@code com.gl.vn.me.ko.sample.instrumentation.env*}).
+ * Provides methods that can be used by Java-agent classes in order to fit an existing execution environment {@code com.gl.vn.me.ko.sample.instrumentation.env*}.
  * <p/>
  * Instantiability: forbidden.<br/>
  * Thread safety: thread-safe.

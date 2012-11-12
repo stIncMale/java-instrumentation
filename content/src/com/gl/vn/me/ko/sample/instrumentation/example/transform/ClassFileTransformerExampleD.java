@@ -2,7 +2,6 @@ package com.gl.vn.me.ko.sample.instrumentation.example.transform;
 
 import javassist.CtClass;
 import javassist.CtMethod;
-import javassist.Modifier;
 import org.apache.log4j.Logger;
 import com.gl.vn.me.ko.sample.instrumentation.util.AbstractClassFileTransformer;
 import com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment;
@@ -89,12 +88,11 @@ public final class ClassFileTransformerExampleD extends AbstractClassFileTransfo
 						"	final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(String.class);" +
 						"	if(logger.isDebugEnabled()) {" +
 						"		if(org.apache.log4j.Logger.getRootLogger().getAllAppenders().hasMoreElements()) {" + // check if Log4j is configured
-						"			logger.debug(\"Invocation of method '" + ctMethod.getLongName() + "' for object '\" + $0 + \"'\");" +
+						"			logger.debug(\"Invocation for object '\" + $0 + \"'\");" +
 						"		}" +
 						"	}" +
 						"	return new String((String)$0);" + // $0 - is equivalent to 'this'
 						"}");
-				ctMethod.setModifiers(ctMethod.getModifiers() | Modifier.SYNCHRONIZED);
 				result = JavassistEnvironment.getCtBytes(ctClass);
 			}
 		}

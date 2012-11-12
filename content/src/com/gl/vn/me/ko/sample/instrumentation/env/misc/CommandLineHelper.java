@@ -123,7 +123,7 @@ public final class CommandLineHelper {
 		/**
 		 * Definition of command-line argument that specifies level of logging.
 		 */
-		@Parameter(names = {"-logLevel", "-logLvl"}, description = "Level of logging (possible values: INFO, DEBUG, TRACE)", converter = LogLevelConverter.class)
+		@Parameter(names = {"-logLevel", "-logl"}, description = "Level of logging (possible values: INFO, DEBUG, TRACE)", converter = LogLevelConverter.class)
 		public Level logLevel;
 		/**
 		 * Definition of command-line argument that specifies name of the example to launch.
@@ -135,11 +135,6 @@ public final class CommandLineHelper {
 			logLevel = (new LogLevelConverter()).convert(LogHelper.APPLICATION_DEFAULT_LOGGING_LEVEL);
 			exampleName = null;
 		}
-	}
-
-	private final static void errorExit() {
-		final int errorExitCode = 1;
-		System.exit(errorExitCode);
 	}
 
 	/**
@@ -172,7 +167,7 @@ public final class CommandLineHelper {
 		}
 		final String lineSeparator = System.getProperty("line.separator");
 		final String usage = "Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent" + lineSeparator
-				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + LogHelper.AGENT_DEFAULT_LOGGING_LEVEL;
+				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + LogHelper.AGENT_DEFAULT_LOGGING_LEVEL + lineSeparator;
 		printUsageAndExit(usage, cause);
 	}
 
@@ -201,7 +196,7 @@ public final class CommandLineHelper {
 	private final static void printUsageAndExit(final String usage, final ParameterException cause) {
 		System.err.println(cause.getMessage());
 		System.err.print(usage);
-		errorExit();
+		System.exit(1);// any return code different from 0 is treated as abnormal termination
 	}
 
 	private CommandLineHelper() {

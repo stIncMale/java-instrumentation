@@ -19,25 +19,30 @@ import javassist.NotFoundException;
  * <p/>
  * The class provides an ability to obtain an exclusive access to its methods, see {@link #lock()} and {@link #unlock()} methods.
  * <p/>
+ * Note also that {@link javassist.CtClass} is not thread-safe, so all operations with the class must be explicitly synchronized in case of concurrent access. Unfortunately it's impossible to hide the
+ * underlying {@link javassist.ClassPool} object behind the {@link com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment} class, because {@link javassist.CtClass#getClassPool()}
+ * method allows everyone to access the {@link javassist.ClassPool} object, and therefore even if one uses {@link #lock()} for exclusive access to
+ * {@link com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment} there is no guarantee that no one else use the same {@link javassist.CtClass} object.
+ * <p/>
  * Instantiability: forbidden.<br/>
  * Thread safety: thread-safe.
  */
 /*
  * This class uses javassist.ClassPool. Although it's not specified in the API specification,
  * according to javassist.ClassPool source code, it seems like the class is thread-safe.
- * So JavassistEnvironment is written with the assumption that javassist.ClassPool is thread-safe.
+ * So JavassistEnvironment is written with the assumption that javassist.ClassPool is thread-safe, but javassist.CtClass is not.
  */
 public final class JavassistEnvironment {
 	private final static char PACKAGE_SEPARATOR_CHAR;// example: java.lang.Class
 	private final static char INTERNAL_PACKAGE_SEPARATOR_CHAR;// example: java/lang/Class
-	private final static Lock sharedLock;
-	private final static Lock exclusiveLock;
+	private final static Lock SHARED_LOCK;// all public methods, except lock()/unlock(), must acquire SHARED_LOCK in the beginning and release this lock before completion
+	private final static Lock EXCLUSIVE_LOCK;
 	static {
 		PACKAGE_SEPARATOR_CHAR = '.';
 		INTERNAL_PACKAGE_SEPARATOR_CHAR = '/';
 		final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);// there is no preferences between read and write locks in this case, therefore fair ordering policy should be used
-		sharedLock = rwLock.readLock();
-		exclusiveLock = rwLock.writeLock();
+		SHARED_LOCK = rwLock.readLock();
+		EXCLUSIVE_LOCK = rwLock.writeLock();
 	}
 
 	/**
@@ -56,11 +61,11 @@ public final class JavassistEnvironment {
 			throw new NullPointerException("The argument 'classPath' is null");
 		}
 		final boolean result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = ClassPoolManager.appendClassPath(classPath);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
@@ -83,7 +88,7 @@ public final class JavassistEnvironment {
 			throw new NullPointerException("The argument 'ctClass' is null");
 		}
 		final byte[] bytes;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			ctClass.rebuildClassFile();
 			try {
@@ -94,7 +99,7 @@ public final class JavassistEnvironment {
 				throw new RuntimeException("Exception occured while trying to get bytecode from class '" + ctClass.getName() + "'", e);
 			}
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return bytes;
 	}
@@ -118,12 +123,12 @@ public final class JavassistEnvironment {
 		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final ClassLoader classLoader = clazz.getClassLoader();
 		final CtClass result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = getCtClassUnsync(classLoader, classNameToSearchInClassPool);
 			processCtClassBeforeReturnUnsync(result);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
@@ -169,12 +174,12 @@ public final class JavassistEnvironment {
 		}
 		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final CtClass result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = getCtClassUnsync(classLoader, classNameToSearchInClassPool);
 			processCtClassBeforeReturnUnsync(result);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
@@ -186,6 +191,8 @@ public final class JavassistEnvironment {
 	 * <p/>
 	 * If class name ends with {@code "[]"}, then this method returns a {@link javassist.CtClass} object for that array type. To obtain an nested class, use {@code "$"} instead of {@code "."} for
 	 * separating the enclosing class name and the nested class name.
+	 * <p/>
+	 * Returned object always have pruning turned off.
 	 * 
 	 * @param className
 	 *            A fully qualified class name (for example {@code "java.lang.Object"} or {@code "java/lang/Object"}). Must be not {@code null}.
@@ -200,12 +207,12 @@ public final class JavassistEnvironment {
 		}
 		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final CtClass result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = getCtClassUnsync(classNameToSearchInClassPool);
 			processCtClassBeforeReturnUnsync(result);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
@@ -226,18 +233,18 @@ public final class JavassistEnvironment {
 		}
 		final String classNameToSearchInClassPool = className.replace(INTERNAL_PACKAGE_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
 		final CtClass result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = getCtClassOrNullUnsync(classNameToSearchInClassPool);
 			processCtClassBeforeReturnUnsync(result);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
 
 	/**
-	 * Invocations must be synchronized using {@link #sharedLock} object.
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
 	 */
 	private final static CtClass getCtClassOrNullUnsync(final String className) {
 		final ClassPool classPool = ClassPoolManager.getClassPool();
@@ -246,7 +253,7 @@ public final class JavassistEnvironment {
 	}
 
 	/**
-	 * Invocations must be synchronized using {@link #sharedLock} object.
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
 	 */
 	private final static CtClass getCtClassUnsync(final ClassLoader classLoader, final String className) throws NotFoundException {
 		CtClass result;
@@ -264,7 +271,7 @@ public final class JavassistEnvironment {
 	}
 
 	/**
-	 * Invocations must be synchronized using {@link #sharedLock} object.
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
 	 */
 	private final static CtClass getCtClassUnsync(final String className) throws NotFoundException {
 		final ClassPool classPool = ClassPoolManager.getClassPool();
@@ -279,6 +286,9 @@ public final class JavassistEnvironment {
 
 	/**
 	 * Provides an ability to control access to {@link JavassistEnvironment} class methods.
+	 * If a thread tries to invoke a method (except {@link #unlock()}) of {@link JavassistEnvironment} class (even without trying to acquire the lock) and the lock is held by another
+	 * thread, then current thread becomes disabled for thread scheduling purposes and lies dormant until lock has been released.
+	 * <p/>
 	 * Acquires the lock if the lock aren't held by another thread and returns immediately. The lock is reentrant so if the current thread already holds the lock then the hold count is incremented by
 	 * one and the method returns immediately.
 	 * <p/>
@@ -294,13 +304,12 @@ public final class JavassistEnvironment {
 	 * }
 	 * </pre>
 	 * 
-	 * </blockquote> If a thread tries to invoke a method (except {@link #unlock()}) of {@link JavassistEnvironment} class (even without trying to acquire the lock) and the lock is held by another
-	 * thread, then current thread becomes disabled for thread scheduling purposes and lies dormant until lock has been released.
+	 * </blockquote>
 	 * 
 	 * @see #unlock()
 	 */
 	public final static void lock() {
-		exclusiveLock.lock();
+		EXCLUSIVE_LOCK.lock();
 	}
 
 	/**
@@ -319,21 +328,21 @@ public final class JavassistEnvironment {
 			throw new NullPointerException("The argument 'classPath' is null");
 		}
 		final boolean result;
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			result = ClassPoolManager.prependClassPath(classPath);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 		return result;
 	}
 
 	/**
-	 * Invocations must be synchronized using {@link #sharedLock} object.
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
 	 */
 	private final static void processCtClassBeforeReturnUnsync(final CtClass ctClass) {
 		if (ctClass != null) {
-			ctClass.stopPruning(true);
+			ctClass.stopPruning(true);// disables pruning so CtClass object can be defrost after freeze
 		}
 	}
 
@@ -345,11 +354,11 @@ public final class JavassistEnvironment {
 	 *            in a new instance of {@link javassist.ClassPool}.
 	 */
 	public final static void renew(final boolean preserveClassPath) {
-		sharedLock.lock();
+		SHARED_LOCK.lock();
 		try {
 			ClassPoolManager.recreateClassPool(preserveClassPath);
 		} finally {
-			sharedLock.unlock();
+			SHARED_LOCK.unlock();
 		}
 	}
 
@@ -361,7 +370,7 @@ public final class JavassistEnvironment {
 	 * @see #lock()
 	 */
 	public final static void unlock() {
-		exclusiveLock.unlock();
+		EXCLUSIVE_LOCK.unlock();
 	}
 
 	private JavassistEnvironment() {

@@ -2,7 +2,6 @@ package com.gl.vn.me.ko.sample.instrumentation.example.agent;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import com.gl.vn.me.ko.sample.instrumentation.env.Agent;
 import com.gl.vn.me.ko.sample.instrumentation.example.transform.ClassFileTransformerExampleA;
 import com.gl.vn.me.ko.sample.instrumentation.example.transform.ClassFileTransformerExampleB;
 import com.gl.vn.me.ko.sample.instrumentation.example.transform.ClassFileTransformerExampleC;
@@ -27,9 +26,12 @@ public final class AgentExampleAbc extends Agent {
 	public final static void premain(final String agentArgs, final Instrumentation inst) {
 		processArgs(agentArgs);
 		LOGGER.trace("Invocation");
-		initInstrumentationEnvironment(inst);
-		registerClassFileTransformers(new ClassFileTransformer[] {ClassFileTransformerExampleA.INSTANCE, ClassFileTransformerExampleB.INSTANCE, ClassFileTransformerExampleC.INSTANCE});
-		LOGGER.trace("Invocation finished");
+		try {
+			initInstrumentationEnvironment(inst);
+			registerClassFileTransformers(new ClassFileTransformer[] {ClassFileTransformerExampleA.INSTANCE, ClassFileTransformerExampleB.INSTANCE, ClassFileTransformerExampleC.INSTANCE});
+		} finally {
+			LOGGER.trace("Invocation finished");
+		}
 	}
 
 	private AgentExampleAbc() {

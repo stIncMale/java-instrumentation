@@ -22,12 +22,12 @@ public final class LogHelper {
 	private final static Object LOCK;
 	/**
 	 * Default logging level for Java-agents.
-	 * The value of this constant is {@value} .
+	 * Value of this constant is {@value} .
 	 */
 	public final static String AGENT_DEFAULT_LOGGING_LEVEL = "INFO";
 	/**
 	 * Default logging level for application.
-	 * The value of this constant is {@value} .
+	 * Value of this constant is {@value} .
 	 */
 	public final static String APPLICATION_DEFAULT_LOGGING_LEVEL = "INFO";
 	static {

@@ -48,8 +48,11 @@ public final class Main {
 	public final static void main(final String[] args) {
 		processArgs(args);
 		LOGGER.trace("Invocation");
-		executeExample();
-		LOGGER.trace("Invocation finished");
+		try {
+			executeExample();
+		} finally {
+			LOGGER.trace("Invocation finished");
+		}
 	}
 
 	private final static void processArgs(final String[] args) {
