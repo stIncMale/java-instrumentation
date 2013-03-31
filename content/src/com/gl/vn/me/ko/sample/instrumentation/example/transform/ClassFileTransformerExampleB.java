@@ -4,6 +4,7 @@ import javassist.CodeConverter;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.Modifier;
+import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
 import com.gl.vn.me.ko.sample.instrumentation.util.AbstractClassFileTransformer;
 import com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment;
@@ -74,13 +75,14 @@ public class ClassFileTransformerExampleB extends AbstractClassFileTransformer {
 	 * Returns {@code true} only if {@code className} is equal to {@code "com/gl/vn/me/ko/sample/instrumentation/example/ExampleB"}. The first argument {@code classLoader} is not used.
 	 */
 	@Override
-	protected final boolean acceptClassForTransformation(final ClassLoader classLoader, final String className) {
+	protected final boolean acceptClassForTransformation(@Nullable final ClassLoader classLoader, final String className) {
 		return CLASS_NAME_TO_TRANSFORM.equals(className);
 	}
 
 	/**
 	 * Transformation is described in the description of {@link ClassFileTransformerExampleB} class.
 	 */
+	@Nullable
 	@Override
 	protected byte[] doTransform(final CtClass ctClass) throws Exception {
 		final byte[] result;

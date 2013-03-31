@@ -2,6 +2,7 @@ package com.gl.vn.me.ko.sample.instrumentation.example.agent;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import javax.annotation.Nonnull;
 import org.apache.log4j.Logger;
 import com.beust.jcommander.ParameterException;
 import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper;
@@ -65,8 +66,11 @@ public class Agent {
 	 */
 	protected final static void registerClassFileTransformers(final ClassFileTransformer[] transformers) {
 		if (!InstrumentationEnvironment.isInitialized()) {
-			throw new IllegalStateException("Instrumentation environment wasn't initialized");
+			throw new IllegalStateException("Instrumentation environment isn't initialized");
 		}
+		@SuppressWarnings("null")
+		@Nonnull
+		// can't be null because InstrumentationEnvironment is initialized
 		final Instrumentation inst = InstrumentationEnvironment.getInstrumentation();
 		for (final ClassFileTransformer transformer : transformers) {
 			inst.addTransformer(transformer);

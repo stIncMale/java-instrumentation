@@ -1,0 +1,2 @@
+Licensed under the Lesser GNU Public License
+http://www.gnu.org/licenses/lgpl.html

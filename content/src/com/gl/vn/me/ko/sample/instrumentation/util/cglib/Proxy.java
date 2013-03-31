@@ -1,5 +1,6 @@
 package com.gl.vn.me.ko.sample.instrumentation.util.cglib;
 
+import javax.annotation.Nullable;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 
@@ -80,12 +81,23 @@ public final class Proxy {
 	 *         delegate calls to the original object, CGLib-proxies are self-sufficient objects that can have some additional logic besides the original one. This is why CGLib-proxies sometimes called
 	 *         enhanced objects.
 	 */
-	public final static <T> T newProxyInstance(final Class<?> superclass, final Class<?>[] interfaces, final Callback callback, final Class<?>[] constructorArgTypes, final Object[] constructorArgs) {
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", "NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE", "NP_NULL_ON_SOME_PATH"},
+			justification = "FindBugs incorrectly analyzes check of preconditions in this method")
+	public final static <T> T newProxyInstance(final Class<?> superclass, @Nullable final Class<?>[] interfaces, final Callback callback, @Nullable final Class<?>[] constructorArgTypes,
+			@Nullable final Object[] constructorArgs) {
 		if (superclass == null) {
 			throw new NullPointerException("The first argument 'superclass' is null");
 		} else if (callback == null) {
 			throw new NullPointerException("The second argument 'methodInterceptor' is null");
+		} else if ((constructorArgTypes == null) && (constructorArgs != null)) {
+			throw new NullPointerException("The fourth argument 'constructorArgTypes' is null and the fifth argument 'constructorArgs' is not null");
+		} else if ((constructorArgTypes != null) && (constructorArgs == null)) {
+			throw new NullPointerException("The fourth argument 'constructorArgTypes' is not null and the fifth argument 'constructorArgs' is null");
+		} else if ((constructorArgTypes != null) && (constructorArgs != null) && (constructorArgTypes.length != constructorArgs.length)) {
+			throw new NullPointerException("The length of the fourth argument 'constructorArgTypes' is not the same as the length of the fifth argument 'constructorArgs'");
 		}
+		@SuppressWarnings("null")
+		// because of preconditions checks null pointer access is impossible
 		final boolean useNoArgConstructor = ((constructorArgTypes == null) && (constructorArgs == null)) || ((constructorArgTypes.length == 0) && (constructorArgs.length == 0));
 		final T result;
 		synchronized (LOCK) {

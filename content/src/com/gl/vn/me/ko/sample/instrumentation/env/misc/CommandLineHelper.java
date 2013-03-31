@@ -1,5 +1,6 @@
 package com.gl.vn.me.ko.sample.instrumentation.env.misc;
 
+import javax.annotation.Nullable;
 import org.apache.log4j.Level;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
@@ -52,11 +53,11 @@ public final class CommandLineHelper {
 			 * Converts {@link java.lang.String} object into another {@link java.lang.String} object that can be used as value of {@link CommandLineParams#exampleName} field.
 			 * 
 			 * @param paramValue
-			 *            {@link java.lang.String} object to convert.
+			 *            {@link java.lang.String} object to convert. Can be {@code null}.
 			 * @return
 			 *         Converted {@link java.lang.String} object.
 			 */
-			public final String convert(final String paramValue) {
+			public final String convert(@Nullable final String paramValue) {
 				final String value = (paramValue == null ? "" : paramValue.toUpperCase(Internationalization.LOCALE));
 				return value;
 			}
@@ -97,13 +98,13 @@ public final class CommandLineHelper {
 			 * Converts {@link java.lang.String} object into {@link org.apache.log4j.Level} object that can be used as value of {@link CommandLineParams#logLevel} field.
 			 * 
 			 * @param paramValue
-			 *            {@link java.lang.String} object to convert.
+			 *            {@link java.lang.String} object to convert. Can be {@code null}.
 			 * @return
 			 *         Converted {@link org.apache.log4j.Level} object.
 			 * @throws com.beust.jcommander.ParameterException
 			 *             If the specified {@link java.lang.String} can't be converted into {@link org.apache.log4j.Level}.
 			 */
-			public final Level convert(final String paramValue) throws ParameterException {
+			public final Level convert(@Nullable final String paramValue) throws ParameterException {
 				final Level value;
 				if ("info".equalsIgnoreCase(paramValue)) {
 					value = Level.INFO;
@@ -112,8 +113,9 @@ public final class CommandLineHelper {
 				} else if ("trace".equalsIgnoreCase(paramValue)) {
 					value = Level.TRACE;
 				} else {
-					final String msg = calledFromAgent ? "The value '" + paramValue + "' is incorrect for level of logging of the agent" : "The value '" + paramValue
-							+ "' is incorrect for the parameter -logLevel";
+					final String msg =
+							calledFromAgent ? "The value '" + paramValue + "' is incorrect for level of logging of the agent" : "The value '" + paramValue
+									+ "' is incorrect for the parameter -logLevel";
 					throw new ParameterException(msg);
 				}
 				return value;
@@ -145,12 +147,14 @@ public final class CommandLineHelper {
 	 * @return
 	 *         Object that contains values of processed command-line arguments.
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "JCommander API forces such an uncommon constructor invocation")
 	public final static CommandLineParams getCommandLineParams(final String[] args) {
 		if (args == null) {
 			throw new NullPointerException("The argument 'args' is null");
 		}
 		final CommandLineParams clParams = new CommandLineParams();
-		new JCommander(clParams, args);
+		@SuppressWarnings("unused")
+		final Object deadStore = new JCommander(clParams, args);
 		return clParams;
 	}
 
@@ -166,8 +170,9 @@ public final class CommandLineHelper {
 			throw new NullPointerException("The argument 'cause' is null");
 		}
 		final String lineSeparator = System.getProperty("line.separator");
-		final String usage = "Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent" + lineSeparator
-				+ "  Possible values: INFO, DEBUG, TRACE" + lineSeparator + "  Default: " + LogHelper.AGENT_DEFAULT_LOGGING_LEVEL + lineSeparator;
+		final String usage =
+				"Usage: -javaagent:agent.jar[=options]" + lineSeparator + "  One can optionally specify a level of logging of the agent" + lineSeparator + "  Possible values: INFO, DEBUG, TRACE"
+						+ lineSeparator + "  Default: " + LogHelper.AGENT_DEFAULT_LOGGING_LEVEL + lineSeparator;
 		printUsageAndExit(usage, cause);
 	}
 

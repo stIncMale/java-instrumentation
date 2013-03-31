@@ -2,6 +2,7 @@ package com.gl.vn.me.ko.sample.instrumentation.example.transform;
 
 import javassist.CtClass;
 import javassist.CtMethod;
+import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
 import com.gl.vn.me.ko.sample.instrumentation.util.AbstractClassFileTransformer;
 import com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment;
@@ -63,13 +64,14 @@ public final class ClassFileTransformerExampleD extends AbstractClassFileTransfo
 	 * Returns {@code true} only if {@code className} is equal to {@code "java/lang/String"}. The first argument {@code classLoader} is not used.
 	 */
 	@Override
-	protected final boolean acceptClassForTransformation(final ClassLoader classLoader, final String className) {
+	protected final boolean acceptClassForTransformation(@Nullable final ClassLoader classLoader, final String className) {
 		return CLASS_NAME_TO_TRANSFORM.equals(className);
 	}
 
 	/**
 	 * Transformation is described in the description of {@link ClassFileTransformerExampleD} class.
 	 */
+	@Nullable
 	@Override
 	protected final byte[] doTransform(final CtClass ctClass) throws Exception {
 		final byte[] result;
@@ -84,14 +86,9 @@ public final class ClassFileTransformerExampleD extends AbstractClassFileTransfo
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Modifying return value of the method '" + ctMethod.getLongName() + "'");
 				}
-				ctMethod.setBody("{" +
-						"	final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(String.class);" +
-						"	if(logger.isDebugEnabled()) {" +
-						"		if(org.apache.log4j.Logger.getRootLogger().getAllAppenders().hasMoreElements()) {" + // check if Log4j is configured
-						"			logger.debug(\"Invocation for object '\" + $0 + \"'\");" +
-						"		}" +
-						"	}" +
-						"	return new String((String)$0);" + // $0 - is equivalent to 'this'
+				ctMethod.setBody("{" + "	final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(String.class);" + "	if(logger.isDebugEnabled()) {"
+						+ "		if(org.apache.log4j.Logger.getRootLogger().getAllAppenders().hasMoreElements()) {" + // check if Log4j is configured
+						"			logger.debug(\"Invocation for object '\" + $0 + \"'\");" + "		}" + "	}" + "	return new String((String)$0);" + // $0 - is equivalent to 'this'
 						"}");
 				result = JavassistEnvironment.getCtBytes(ctClass);
 			}

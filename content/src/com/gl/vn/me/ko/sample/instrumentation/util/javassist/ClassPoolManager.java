@@ -76,6 +76,37 @@ final class ClassPoolManager {
 	}
 
 	/**
+	 * Prepends {@code classPath} to the head of the search path of the {@link javassist.ClassPool} object.
+	 * 
+	 * @param classPath
+	 *            The class path to prepend. Must be not {@code null}.
+	 * @return
+	 *         <ul>
+	 *         <li>{@code true} if specified class path was prepended.</li>
+	 *         <li>{@code false} if specified class path wasn't prepended because it was prepended previously.</li>
+	 *         </ul>
+	 */
+	final static boolean prependClassPath(final ClassPath classPath) {
+		final ClassPool classPool = getClassPool();
+		final boolean result = modifyClassPath(classPool, classPath, false);
+		return result;
+	}
+
+	/**
+	 * Invocation of the method guarantees creation of a new instance of {@link javassist.ClassPool} the next time method {@link #getClassPool()} will be called.
+	 * 
+	 * @param preserveClassPath
+	 *            Specifies if prepended/appended class path elements should be presented in a new instance of {@link javassist.ClassPool}.
+	 * @see #getClassPool()
+	 */
+	final static void recreateClassPool(final boolean preserveClassPath) {
+		synchronized (LOCK) {
+			classPool = null;
+			ClassPoolManager.preserveClassPath = preserveClassPath;
+		}
+	}
+
+	/**
 	 * Must be only invoked inside {@code synchronized (LOCK)} block.
 	 */
 	private final static void initClassPoolUnsync() {
@@ -112,37 +143,6 @@ final class ClassPoolManager {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Prepends {@code classPath} to the head of the search path of the {@link javassist.ClassPool} object.
-	 * 
-	 * @param classPath
-	 *            The class path to prepend. Must be not {@code null}.
-	 * @return
-	 *         <ul>
-	 *         <li>{@code true} if specified class path was prepended.</li>
-	 *         <li>{@code false} if specified class path wasn't prepended because it was prepended previously.</li>
-	 *         </ul>
-	 */
-	final static boolean prependClassPath(final ClassPath classPath) {
-		final ClassPool classPool = getClassPool();
-		final boolean result = modifyClassPath(classPool, classPath, false);
-		return result;
-	}
-
-	/**
-	 * Invocation of the method guarantees creation of a new instance of {@link javassist.ClassPool} the next time method {@link #getClassPool()} will be called.
-	 * 
-	 * @param preserveClassPath
-	 *            Specifies if prepended/appended class path elements should be presented in a new instance of {@link javassist.ClassPool}.
-	 * @see #getClassPool()
-	 */
-	final static void recreateClassPool(final boolean preserveClassPath) {
-		synchronized (LOCK) {
-			classPool = null;
-			ClassPoolManager.preserveClassPath = preserveClassPath;
-		}
 	}
 
 	private ClassPoolManager() {

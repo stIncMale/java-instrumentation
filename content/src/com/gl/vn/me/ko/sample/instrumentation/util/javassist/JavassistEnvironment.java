@@ -9,6 +9,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
 import javassist.NotFoundException;
+import javax.annotation.Nullable;
 
 /**
  * Provides API to work with Javassist framework.
@@ -168,7 +169,7 @@ public final class JavassistEnvironment {
 	 *             When the requested class can't be find in the underlying {@link javassist.ClassPool} object.
 	 * @see #getCtClass(String)
 	 */
-	public final static CtClass getCtClass(final ClassLoader classLoader, final String className) throws NotFoundException {
+	public final static CtClass getCtClass(@Nullable final ClassLoader classLoader, final String className) throws NotFoundException {
 		if (className == null) {
 			throw new NullPointerException("The second argument 'className' is null");
 		}
@@ -227,6 +228,7 @@ public final class JavassistEnvironment {
 	 *         A {@link javassist.CtClass} object representing specified class or {@code null}.
 	 * @see #getCtClass(String)
 	 */
+	@Nullable
 	public final static CtClass getCtClassOrNull(final String className) {
 		if (className == null) {
 			throw new NullPointerException("The argument 'className' is null");
@@ -239,47 +241,6 @@ public final class JavassistEnvironment {
 			processCtClassBeforeReturnUnsync(result);
 		} finally {
 			SHARED_LOCK.unlock();
-		}
-		return result;
-	}
-
-	/**
-	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
-	 */
-	private final static CtClass getCtClassOrNullUnsync(final String className) {
-		final ClassPool classPool = ClassPoolManager.getClassPool();
-		final CtClass result = classPool.getOrNull(className);
-		return result;
-	}
-
-	/**
-	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
-	 */
-	private final static CtClass getCtClassUnsync(final ClassLoader classLoader, final String className) throws NotFoundException {
-		CtClass result;
-		if (classLoader == null) {// bootstrap class loader
-			result = getCtClassUnsync(className);
-		} else {
-			result = getCtClassOrNullUnsync(className);// try to get CtClass using known class path
-			if (result == null) {// class wasn't found in the known class path
-				final ClassPath classPath = new LoaderClassPath(classLoader);
-				appendClassPath(classPath);
-				result = getCtClassUnsync(className);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
-	 */
-	private final static CtClass getCtClassUnsync(final String className) throws NotFoundException {
-		final ClassPool classPool = ClassPoolManager.getClassPool();
-		final CtClass result;
-		try {
-			result = classPool.get(className);
-		} catch (final NotFoundException e) {
-			throw new NotFoundException("Can't find class '" + className + "' in the class pool '" + classPool + "'", e);
 		}
 		return result;
 	}
@@ -338,15 +299,6 @@ public final class JavassistEnvironment {
 	}
 
 	/**
-	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
-	 */
-	private final static void processCtClassBeforeReturnUnsync(final CtClass ctClass) {
-		if (ctClass != null) {
-			ctClass.stopPruning(true);// disables pruning so CtClass object can be defrost after freeze
-		}
-	}
-
-	/**
 	 * Recreates the underlying instance of {@link javassist.ClassPool} that is used by {@link JavassistEnvironment}.
 	 * 
 	 * @param preserveClassPath
@@ -371,6 +323,57 @@ public final class JavassistEnvironment {
 	 */
 	public final static void unlock() {
 		EXCLUSIVE_LOCK.unlock();
+	}
+
+	/**
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
+	 */
+	@Nullable
+	private final static CtClass getCtClassOrNullUnsync(final String className) {
+		final ClassPool classPool = ClassPoolManager.getClassPool();
+		final CtClass result = classPool.getOrNull(className);
+		return result;
+	}
+
+	/**
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
+	 */
+	private final static CtClass getCtClassUnsync(@Nullable final ClassLoader classLoader, final String className) throws NotFoundException {
+		CtClass result;
+		if (classLoader == null) {// bootstrap class loader
+			result = getCtClassUnsync(className);
+		} else {
+			result = getCtClassOrNullUnsync(className);// try to get CtClass using known class path
+			if (result == null) {// class wasn't found in the known class path
+				final ClassPath classPath = new LoaderClassPath(classLoader);
+				appendClassPath(classPath);
+				result = getCtClassUnsync(className);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
+	 */
+	private final static CtClass getCtClassUnsync(final String className) throws NotFoundException {
+		final ClassPool classPool = ClassPoolManager.getClassPool();
+		final CtClass result;
+		try {
+			result = classPool.get(className);
+		} catch (final NotFoundException e) {
+			throw new NotFoundException("Can't find class '" + className + "' in the class pool '" + classPool + "'", e);
+		}
+		return result;
+	}
+
+	/**
+	 * Invocations must be synchronized using {@link #SHARED_LOCK} object.
+	 */
+	private final static void processCtClassBeforeReturnUnsync(@Nullable final CtClass ctClass) {
+		if (ctClass != null) {
+			ctClass.stopPruning(true);// disables pruning so CtClass object can be defrost after freeze
+		}
 	}
 
 	private JavassistEnvironment() {

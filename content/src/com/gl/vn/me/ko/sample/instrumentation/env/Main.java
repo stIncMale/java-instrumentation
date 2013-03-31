@@ -1,5 +1,6 @@
 package com.gl.vn.me.ko.sample.instrumentation.env;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import com.beust.jcommander.ParameterException;
 import com.gl.vn.me.ko.sample.instrumentation.env.misc.CommandLineHelper;
@@ -21,6 +22,22 @@ public final class Main {
 		LOGGER = Logger.getLogger(Main.class);
 	}
 
+	/**
+	 * Application entry point.
+	 * 
+	 * @param args
+	 *            Command-line arguments of the application.
+	 */
+	public final static void main(final String[] args) {
+		processArgs(args);
+		LOGGER.trace("Invocation");
+		try {
+			executeExample();
+		} finally {
+			LOGGER.trace("Invocation finished");
+		}
+	}
+
 	private final static void executeExample() {
 		final Example example;
 		final String exampleClassNamePattern = "com.gl.vn.me.ko.sample.instrumentation.example.Example";
@@ -39,26 +56,11 @@ public final class Main {
 		example.run();
 	}
 
-	/**
-	 * Application entry point.
-	 * 
-	 * @param args
-	 *            Command-line arguments of the application.
-	 */
-	public final static void main(final String[] args) {
-		processArgs(args);
-		LOGGER.trace("Invocation");
-		try {
-			executeExample();
-		} finally {
-			LOGGER.trace("Invocation finished");
-		}
-	}
-
 	private final static void processArgs(final String[] args) {
 		try {
 			final CommandLineParams clParams = CommandLineHelper.getCommandLineParams(args);
-			LogHelper.configure(clParams.logLevel);
+			final Level logLevel = clParams.logLevel;
+			LogHelper.configure(logLevel);
 			exampleName = clParams.exampleName;
 		} catch (final ParameterException e) {
 			CommandLineHelper.printAppUsageAndExit(e);

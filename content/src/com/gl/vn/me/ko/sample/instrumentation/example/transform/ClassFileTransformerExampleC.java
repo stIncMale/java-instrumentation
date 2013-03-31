@@ -1,5 +1,6 @@
 package com.gl.vn.me.ko.sample.instrumentation.example.transform;
 
+import javax.annotation.Nullable;
 import javassist.CtClass;
 import javassist.CtMethod;
 import org.apache.log4j.Logger;
@@ -62,13 +63,14 @@ public final class ClassFileTransformerExampleC extends AbstractClassFileTransfo
 	 * Returns {@code true} only if {@code className} is equal to {@code "com/gl/vn/me/ko/sample/instrumentation/example/ExampleC"}. The first argument {@code classLoader} is not used.
 	 */
 	@Override
-	protected final boolean acceptClassForTransformation(final ClassLoader classLoader, final String className) {
+	protected final boolean acceptClassForTransformation(@Nullable final ClassLoader classLoader, final String className) {
 		return CLASS_NAME_TO_TRANSFORM.equals(className);
 	}
 
 	/**
 	 * Transformation is described in the description of {@link ClassFileTransformerExampleC} class.
 	 */
+	@Nullable
 	@Override
 	protected final byte[] doTransform(final CtClass ctClass) throws Exception {
 		final byte[] result;

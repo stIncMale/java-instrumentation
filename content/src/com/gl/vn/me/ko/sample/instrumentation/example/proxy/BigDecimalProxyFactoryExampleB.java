@@ -27,14 +27,6 @@ public final class BigDecimalProxyFactoryExampleB {
 		LOGGER = Logger.getLogger(BigDecimalProxyFactoryExampleB.class);
 	}
 
-	private final static BigDecimal create(final Class<?>[] constructorArgTypes, final Object[] constructorArgs) {
-		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("Creating a BigDecimal proxy object using constructor arg types " + Arrays.toString(constructorArgTypes) + " and args " + Arrays.toString(constructorArgs));
-		}
-		final BigDecimal result = Proxy.newProxyInstance(BigDecimal.class, null, MethodInterceptorExampleB.INSTANCE, constructorArgTypes, constructorArgs);
-		return result;
-	}
-
 	/**
 	 * Creates a {@link java.math.BigDecimal} proxy object from {@code double} argument.
 	 * 
@@ -45,7 +37,7 @@ public final class BigDecimalProxyFactoryExampleB {
 	 */
 	public final static BigDecimal create(final double value) {
 		final Class<?>[] constructorArgTypes = new Class<?>[] {Double.TYPE};
-		final Object[] constructorArgs = new Object[] {value};
+		final Object[] constructorArgs = new Object[] {Double.valueOf(value)};
 		final BigDecimal result = create(constructorArgTypes, constructorArgs);
 		return result;
 	}
@@ -65,6 +57,14 @@ public final class BigDecimalProxyFactoryExampleB {
 		final Class<?>[] constructorArgTypes = new Class<?>[] {String.class};
 		final Object[] constructorArgs = new Object[] {value};
 		final BigDecimal result = create(constructorArgTypes, constructorArgs);
+		return result;
+	}
+
+	private final static BigDecimal create(final Class<?>[] constructorArgTypes, final Object[] constructorArgs) {
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Creating a BigDecimal proxy object using constructor arg types " + Arrays.toString(constructorArgTypes) + " and args " + Arrays.toString(constructorArgs));
+		}
+		final BigDecimal result = Proxy.newProxyInstance(BigDecimal.class, null, MethodInterceptorExampleB.INSTANCE, constructorArgTypes, constructorArgs);
 		return result;
 	}
 

@@ -22,8 +22,9 @@ public final class ExampleD implements Example {
 	public ExampleD() {
 	}
 
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "ES_COMPARING_STRINGS_WITH_EQ", justification = "Comparison by reference is made intentionally")
 	public final void run() {
-		final boolean comparisonResult = ("test" == "test".toString());
+		final boolean comparisonResult = "test" == "test".toString();
 		LOGGER.info("(\"test\" == \"test\".toString()) is " + comparisonResult);
 	}
 }

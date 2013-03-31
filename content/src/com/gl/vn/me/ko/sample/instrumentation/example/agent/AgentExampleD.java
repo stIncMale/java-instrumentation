@@ -39,8 +39,7 @@ public final class AgentExampleD extends Agent {
 		if (LOGGER.isDebugEnabled()) {
 			final ClassLoader classLoader = classToRetransform.getClassLoader();
 			final String classLoaderStringRepresentation = classLoader == null ? "bootstrap" : classLoader.toString();
-			LOGGER.debug("Class '" + classToRetransform.getName() + "' was loaded via '" + classLoaderStringRepresentation
-					+ "' class loader. The class will be retransformed");
+			LOGGER.debug("Class '" + classToRetransform.getName() + "' was loaded via '" + classLoaderStringRepresentation + "' class loader. The class will be retransformed");
 		}
 		try {
 			InstrumentationEnvironment.retransformClasses(new Class<?>[] {classToRetransform});

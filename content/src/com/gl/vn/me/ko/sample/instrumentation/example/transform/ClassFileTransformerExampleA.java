@@ -6,6 +6,7 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
+import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
 import com.gl.vn.me.ko.sample.instrumentation.example.ExampleA;
 import com.gl.vn.me.ko.sample.instrumentation.util.AbstractClassFileTransformer;
@@ -74,7 +75,7 @@ public final class ClassFileTransformerExampleA extends AbstractClassFileTransfo
 		 * </blockquote>
 		 */
 		@Override
-		public final void edit(final FieldAccess fieldAccess) throws CannotCompileException {
+		public final void edit(@SuppressWarnings("null") final FieldAccess fieldAccess) throws CannotCompileException {
 			if (fieldAccess.isWriter()) {
 				final String jvmFieldSignature = fieldAccess.getSignature();// field signature as specified in "The Java Virtual Machine Specification"
 				if (JVM_INT_FIELD_SIGNATURE.equals(jvmFieldSignature)) {
@@ -115,13 +116,14 @@ public final class ClassFileTransformerExampleA extends AbstractClassFileTransfo
 	 * Returns {@code true} only if {@code className} is equal to {@code "com/gl/vn/me/ko/sample/instrumentation/example/ExampleA"}. The first argument {@code classLoader} is not used.
 	 */
 	@Override
-	protected final boolean acceptClassForTransformation(final ClassLoader classLoader, final String className) {
+	protected final boolean acceptClassForTransformation(@Nullable final ClassLoader classLoader, final String className) {
 		return CLASS_NAME_TO_TRANSFORM.equals(className);
 	}
 
 	/**
 	 * Transformation is described in the description of {@link ClassFileTransformerExampleA} class.
 	 */
+	@Nullable
 	@Override
 	protected final byte[] doTransform(final CtClass ctClass) throws Exception {
 		final byte[] result;

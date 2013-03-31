@@ -24,10 +24,6 @@ public final class ExampleA implements Example {
 		counter = 0;
 	}
 
-	private final void increment(final int incrementValue) {
-		counter += incrementValue;
-	}
-
 	public final void run() {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("counter = " + counter + " before incrementation");
@@ -36,5 +32,9 @@ public final class ExampleA implements Example {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("counter = " + counter + " after incrementation");
 		}
+	}
+
+	private final void increment(final int incrementValue) {
+		counter += incrementValue;
 	}
 }

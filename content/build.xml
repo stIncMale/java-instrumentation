@@ -118,7 +118,7 @@
 				<![CDATA[<a href="http://code.google.com/p/java-instrumentation/">Java Instrumentation Examples</a><br/>Code Documentation]]>
 			</header>
 			<footer>
-				<![CDATA[Licensed under <a href="http://sam.zoy.org/wtfpl/COPYING">WTFPL version 2</a>]]>
+				<![CDATA[Licensed under <a href="http://www.wtfpl.net/">WTFPL</a>]]>
 			</footer>
 			<group title="Environment to launch examples">
 				<package name="com.gl.vn.me.ko.sample.instrumentation.env*"/>
@@ -138,7 +138,8 @@
 			<link href="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/html/"/>
 			<link href="http://cglib.sourceforge.net/apidocs/"/>
 			<link href="http://jcommander.org/apidocs/"/>
-			<link href="http://logging.apache.org/log4j/1.2/apidocs/"/>			
+			<link href="http://logging.apache.org/log4j/1.2/apidocs/"/>
+			<link href="http://jsr-305.googlecode.com/svn/trunk/javadoc/"/>
 		</javadoc>
 	</target>
 	<target name="all" depends="doc, bin" description="build all sources and java-docs">

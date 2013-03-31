@@ -4,6 +4,7 @@ import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import javassist.CtClass;
+import javax.annotation.Nullable;
 import com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment;
 
 /**
@@ -46,32 +47,9 @@ public final class InstrumentationEnvironment {
 	 * @see #setInstrumentation(Instrumentation)
 	 * @see #isInitialized()
 	 */
+	@Nullable
 	public final static Instrumentation getInstrumentation() {
 		return instrumentation;
-	}
-
-	/**
-	 * Invocations must be synchronized using {@link com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment#lock()} method.
-	 */
-	private final static byte[][] getOriginalBytes(final Class<?>[] classes) {
-		final byte[][] result = new byte[classes.length][];
-		try {
-			for (int i = 0; i < classes.length; i++) {
-				final Class<?> clazz = classes[i];
-				final CtClass possiblyModifiedCtClass = JavassistEnvironment.getCtClass(clazz);
-				synchronized (possiblyModifiedCtClass) {
-					possiblyModifiedCtClass.detach();// remove this object from its ClassPool
-				}
-				final CtClass originalCtClass = JavassistEnvironment.getCtClass(clazz);// this time it will be unmodified class
-				synchronized (originalCtClass) {
-					result[i] = originalCtClass.toBytecode();
-					originalCtClass.defrost();// no modifications were made with the class, so one can safely defrost it in order to allow further transformations
-				}
-			}
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		return result;
 	}
 
 	/**
@@ -84,7 +62,7 @@ public final class InstrumentationEnvironment {
 	 *         </ul>
 	 */
 	public final static boolean isInitialized() {
-		return getInstrumentation() != null;
+		return instrumentation != null;
 	}
 
 	/**
@@ -149,6 +127,30 @@ public final class InstrumentationEnvironment {
 				InstrumentationEnvironment.instrumentation = instrumentation;
 			}
 		}
+	}
+
+	/**
+	 * Invocations must be synchronized using {@link com.gl.vn.me.ko.sample.instrumentation.util.javassist.JavassistEnvironment#lock()} method.
+	 */
+	private final static byte[][] getOriginalBytes(final Class<?>[] classes) {
+		final byte[][] result = new byte[classes.length][];
+		try {
+			for (int i = 0; i < classes.length; i++) {
+				final Class<?> clazz = classes[i];
+				final CtClass possiblyModifiedCtClass = JavassistEnvironment.getCtClass(clazz);
+				synchronized (possiblyModifiedCtClass) {
+					possiblyModifiedCtClass.detach();// remove this object from its ClassPool
+				}
+				final CtClass originalCtClass = JavassistEnvironment.getCtClass(clazz);// this time it will be unmodified class
+				synchronized (originalCtClass) {
+					result[i] = originalCtClass.toBytecode();
+					originalCtClass.defrost();// no modifications were made with the class, so one can safely defrost it in order to allow further transformations
+				}
+			}
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
 	}
 
 	private InstrumentationEnvironment() {

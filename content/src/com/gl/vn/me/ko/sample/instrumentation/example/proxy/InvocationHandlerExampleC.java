@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,7 +30,8 @@ final class InvocationHandlerExampleC implements InvocationHandler {
 		HOT_VALVE = Integer.valueOf(1);
 	}
 
-	private final static Object invokeOriginalMethod(final Object proxiedObject, final Method method, final Object[] methodArgs) throws InvocationTargetException {
+	@Nullable
+	private final static Object invokeOriginalMethod(final Object proxiedObject, final Method method, @Nullable final Object[] methodArgs) throws InvocationTargetException {
 		Object result;
 		try {
 			result = method.invoke(proxiedObject, methodArgs);
@@ -41,7 +43,7 @@ final class InvocationHandlerExampleC implements InvocationHandler {
 		return result;
 	}
 
-	private final static String valveToString(final Object value) {
+	private final static String valveToString(@Nullable final Object value) {
 		final String result;
 		if (COLD_VALVE.equals(value)) {
 			result = "cold";
@@ -57,7 +59,7 @@ final class InvocationHandlerExampleC implements InvocationHandler {
 	 * Constructs invocation handler for the provided object.
 	 * 
 	 * @param object
-	 *            An original object that can be hided behind the proxy so invocation handler is the only way to access it.
+	 *            An original object that can be hided behind the proxy so invocation handler is the only way to access it. Must be not {@code null}.
 	 */
 	public InvocationHandlerExampleC(final Map<?, ?> object) {
 		if (object == null) {
@@ -70,10 +72,11 @@ final class InvocationHandlerExampleC implements InvocationHandler {
 	 * Invokes provided method on the proxied (original) object. If name of the method to invoke is {@code "get"} and the only argument of the method is equal to object that denotes hot or cold faucet
 	 * valves (see {@link com.gl.vn.me.ko.sample.instrumentation.example.ExampleC}), then the invocation becomes tricky: the value of argument is swapped from hot to cold and vice versa.
 	 * 
-	 * @return Result of the method invocation on the proxied (original) object.
+	 * @return Result of the method invocation on the proxied (original) object. The result can be {@code null}.
 	 */
-	public final Object invoke(final Object proxyObject, final Method method, final Object[] methodArgs) {
-		if (METHOD_NAME_TO_TRICK.equals(method.getName()) && (methodArgs.length == 1)) {
+	@Nullable
+	public final Object invoke(@SuppressWarnings("null") final Object proxyObject, @SuppressWarnings("null") final Method method, @Nullable final Object[] methodArgs) {
+		if (METHOD_NAME_TO_TRICK.equals(method.getName()) && (methodArgs != null) && (methodArgs.length == 1)) {
 			final Object originalMethodArg = methodArgs[0];
 			Object newMethodArg = null;
 			final boolean argumentSwapped;
