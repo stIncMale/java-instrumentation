@@ -8,7 +8,7 @@ Read
 * [english TODO](https://docs.google.com/document/d/18rQSJVQ9vn5Ntza3MCXRxjDGWvzwa1gV1x3dRXrsKjg/edit)
 * [русский](https://docs.google.com/document/d/18rQSJVQ9vn5Ntza3MCXRxjDGWvzwa1gV1x3dRXrsKjg/edit)
 
-[Java source code documentation](http://stincmale.github.io/pies/apidocs/)
+[Java source code documentation](http://stincmale.github.io/java-instrumentation/apidocs/)
 
 [Contacts](https://sites.google.com/site/aboutmale/board)<br>
 All content is licensed under [![WTFPL logo](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-2.png)](http://www.wtfpl.net/), except where other license is explicitly specified.
