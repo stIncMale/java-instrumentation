@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="java-instrumentation" default="all" basedir=".">
+	<path id="src.path">
+		<pathelement path="src"/>
+	</path>	
+	<path id="lib.path">
+		<pathelement path="lib"/>
+	</path>
+	<path id="compile.classes.path">
+		<pathelement path="build/classes"/>
+	</path>
+	<path id="build.docs.path">
+		<pathelement path="build/docs"/>
+	</path>
+	<path id="build.path">
+		<pathelement path="build"/>
+	</path>
+	<path id="javac.classpath">
+		<fileset dir="${toString:lib.path}" includes="*.jar"/>
+	</path>
+	<path id="javadoc.classpath">
+		<fileset dir="${toString:lib.path}" includes="*.jar"/>
+	</path>
+	<property name="manifest.file.name" value="MANIFEST.MF"/>
+	<property name="main.manifest.template.name" value="main-MANIFEST.MF"/>
+	<property name="example.manifest.template.name" value="example-MANIFEST.MF"/>
+	<property name="agent-abc.manifest.template.name" value="agent-abc-MANIFEST.MF"/>
+	<property name="agent-d.manifest.template.name" value="agent-d-MANIFEST.MF"/>
+	<property name="instrumentation-util.manifest.template.name" value="instrumentation-util-MANIFEST.MF"/>
+	<target name="compile" description="compile all sources">
+		<mkdir dir="${toString:compile.classes.path}"/>
+		<javac srcdir="${toString:src.path}" destdir="${toString:compile.classes.path}" debug="on" debuglevel="lines,source" encoding="UTF-8" includeantruntime="false">
+			<classpath refid="javac.classpath"/>
+		</javac>
+	</target>
+	<target name="bin" depends="compile" description="pack compiled classes into JAR-files">
+		<mkdir dir="${toString:build.path}"/>
+		<!-- create main.jar #begin-->
+			<copy tofile="${toString:compile.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${main.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/main.jar" manifest="${toString:compile.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:compile.classes.path}">
+					<include name="**/env/**/*.class"/>
+				</fileset>
+			</jar>
+		<!-- create main.jar #end-->
+		<!-- create example.jar #begin-->
+			<copy tofile="${toString:compile.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${example.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/example.jar">
+				<fileset dir="${toString:compile.classes.path}">
+					<include name="**/example/*.class"/>
+				</fileset>
+			</jar>
+		<!-- create example.jar #end-->
+		<!-- create agent-abc.jar #begin-->
+			<copy tofile="${toString:compile.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${agent-abc.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/agent-abc.jar" manifest="${toString:compile.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:compile.classes.path}">
+					<include name="**/example/agent/Agent.class"/>
+					<include name="**/example/agent/AgentExampleAbc*.class"/>
+					<include name="**/example/proxy/**/*.class"/>
+					<include name="**/example/transform/ClassFileTransformerExampleA*.class"/>
+					<include name="**/example/transform/ClassFileTransformerExampleB*.class"/>
+					<include name="**/example/transform/ClassFileTransformerExampleC*.class"/>
+			  	</fileset>
+			</jar>
+		<!-- create agent-abc.jar #end-->
+		<!-- create agent-d.jar #begin-->
+			<copy tofile="${toString:compile.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${agent-d.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/agent-d.jar" manifest="${toString:compile.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:compile.classes.path}">
+					<include name="**/example/agent/Agent.class"/>
+					<include name="**/example/agent/AgentExampleD*.class"/>
+					<include name="**/example/transform/ClassFileTransformerExampleD*.class"/>
+			  	</fileset>
+			</jar>
+		<!-- create agent-d.jar #end-->
+		<!-- create instrumentation-util.jar #begin-->
+			<copy tofile="${toString:compile.classes.path}/${manifest.file.name}" overwrite="true" description="create manifest file from template">
+				<fileset dir="${toString:src.path}">
+					<include name="${instrumentation-util.manifest.template.name}"/>
+				</fileset>
+			</copy>
+			<jar jarfile="${toString:build.path}/instrumentation-util.jar" manifest="${toString:compile.classes.path}/${manifest.file.name}">
+				<fileset dir="${toString:compile.classes.path}">
+					<include name="**/util/**/*.class"/>
+		  		</fileset>
+			</jar>
+		<!-- create instrumentation-util.jar #end-->
+		<delete dir="${toString:compile.classes.path}"/>
+	</target>
+	<target name="doc" description="generate java-docs for all sources">
+		<delete dir="${toString:build.docs.path}"/>
+		<javadoc destdir="${toString:build.docs.path}" author="false" version="false" use="true" package="true" locale="en" docencoding="UTF-8" windowtitle="Java Instrumentation Examples. Code Documentation">
+			<classpath refid="javadoc.classpath"/>
+			<fileset dir="${toString:src.path}">
+				<include name="com/**"/>
+			</fileset>
+			<doctitle>
+				<![CDATA[<h1>Java Instrumentation Examples<br/>Code Documentation</h1>]]>
+			</doctitle>
+			<header>
+				<![CDATA[<a href="http://code.google.com/p/java-instrumentation/">Java Instrumentation Examples</a><br/>Code Documentation]]>
+			</header>
+			<footer>
+				<![CDATA[Licensed under <a href="http://www.wtfpl.net/">WTFPL</a>]]>
+			</footer>
+			<group title="Environment to launch examples">
+				<package name="com.gl.vn.me.ko.sample.instrumentation.env*"/>
+			</group>
+			<group title="Examples">
+				<package name="com.gl.vn.me.ko.sample.instrumentation.example"/>
+			</group>
+			<group title="Instrumentation code for examples">
+				<package name="com.gl.vn.me.ko.sample.instrumentation.example.agent"/>
+				<package name="com.gl.vn.me.ko.sample.instrumentation.example.proxy"/>
+				<package name="com.gl.vn.me.ko.sample.instrumentation.example.transform"/>
+			</group>
+			<group title="Reusable code">
+				<package name="com.gl.vn.me.ko.sample.instrumentation.util*"/>				
+			</group>
+			<link href="http://docs.oracle.com/javase/1.5.0/docs/api/"/>
+			<link href="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/html/"/>
+			<link href="http://cglib.sourceforge.net/apidocs/"/>
+			<link href="http://jcommander.org/apidocs/"/>
+			<link href="http://logging.apache.org/log4j/1.2/apidocs/"/>
+			<link href="http://jsr-305.googlecode.com/svn/trunk/javadoc/"/>
+		</javadoc>
+	</target>
+	<target name="all" depends="doc, bin" description="build all sources and java-docs">
+	</target>
+</project>
