@@ -3,7 +3,7 @@
 The article describes what Java instrumentation and class file transformation is, what mechanisms Java Platform SE provides for the instrumentation purposes, and gives working examples of Java class file transformations.
 
 Read
-* [english TODO](https://docs.google.com/document/d/18rQSJVQ9vn5Ntza3MCXRxjDGWvzwa1gV1x3dRXrsKjg/edit)
+* [english (TODO coming soon)](https://docs.google.com/document/d/18rQSJVQ9vn5Ntza3MCXRxjDGWvzwa1gV1x3dRXrsKjg/edit)
 * [русский](https://docs.google.com/document/d/18rQSJVQ9vn5Ntza3MCXRxjDGWvzwa1gV1x3dRXrsKjg/edit)
 
 [Java source code documentation](http://stincmale.github.io/java-instrumentation/apidocs/)
