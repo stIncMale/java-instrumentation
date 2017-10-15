@@ -8,19 +8,18 @@ import java.util.Locale;
  * <p>
  * Instantiability: forbidden.<br>
  * Thread safety: thread-safe.
- * 
- * @author Valentin Kovalenko
  */
 public final class Internationalization {
-	/**
-	 * Instance of {@link java.util.Locale} that should be used throughout the application code.
-	 */
-	public final static Locale LOCALE;
-	static {
-		LOCALE = Locale.ENGLISH;
-	}
+  /**
+   * Instance of {@link java.util.Locale} that should be used throughout the application code.
+   */
+  public final static Locale LOCALE;
 
-	private Internationalization() {
-		throw new UnsupportedOperationException("The class is not designed to be instantiated");
-	}
+  static {
+    LOCALE = Locale.ENGLISH;
+  }
+
+  private Internationalization() {
+    throw new UnsupportedOperationException("The class is not designed to be instantiated");
+  }
 }

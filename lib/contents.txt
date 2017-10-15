@@ -1,9 +1,9 @@
-The folder contains external libraries needed to compile and run the code, 
+The folder contains external libraries needed to compile and run the code,
 as well as licenses for the external libraries.
 
 List of files and folders:
 licenses/ - contains licenses for external libraries
-asm.jar - asm-1.5.3, used by cglig.jar at runtime
+asm.jar - asm-1.5.3, used by cglib.jar at runtime
 cglib.jar - cglib-2.1_3, required for compilation
 findbugs-annotations.jar - annotations from findbugs-2.0.2, required for compilation
 javassist.jar - javassist-3.22.0-GA, required for compilation

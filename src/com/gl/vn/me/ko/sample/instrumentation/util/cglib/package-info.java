@@ -1,7 +1,6 @@
 /**
- * Contains utility classes specific to CGLib framework that are used in examples and can be reused as is or with modifications for other applications.
- * 
- * @author Valentin Kovalenko
+ * Contains utility classes specific to CGLib framework
+ * that are used in examples and can be reused as is or with modifications for other applications.
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.gl.vn.me.ko.sample.instrumentation.util.cglib;
