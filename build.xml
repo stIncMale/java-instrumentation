@@ -136,7 +136,7 @@
       <group title="Reusable code">
         <package name="com.gl.vn.me.ko.sample.instrumentation.util*"/>
       </group>
-      <link href="http://docs.oracle.com/javase/8/docs/api/"/>
+      <link href="http://docs.oracle.com/javase/9/docs/api/"/>
       <link href="http://jboss-javassist.github.io/javassist/html/"/>
       <link href="http://cglib.sourceforge.net/apidocs/"/>
       <link href="http://jcommander.org/apidocs/"/>
